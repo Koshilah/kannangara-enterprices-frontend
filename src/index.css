@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-night-sky-100: #606271;
+  --color-night-sky-200: #4d4d80;
+  --color-night-sky-300: #3c3f68;
+  --color-night-sky-400: #282c4d;
+  --color-night-sky-500: #1c1f3b;
+}
