@@ -8,7 +8,7 @@ function Navbar() {
       <div className="flex gap-0.5 items-center cursor-pointer">
         <img src="/logo.png" alt="logo" className="size-14" />
         <div className="">
-          <p className="text-night-sky-500 font-bold text-xl leading-none">
+          <p className="text-night-sky-500 font-bold text-xl tracking-wide leading-none">
             Kannangara
           </p>
           <p className="leading-none">Hardwares</p>
