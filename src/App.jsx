@@ -1,9 +1,8 @@
 import "./App.css";
-import Navbar from "./components/Navbar";
-import NavbarAdmin from "./components/NavbarAdmin";
+import SignUp from "./pages/SignUp";
 
 function App() {
-  return <><Navbar /><NavbarAdmin /></>;
+  return <><SignUp /></>;
 }
 
 export default App;
