@@ -1,9 +1,8 @@
 import "./App.css";
-import SignIn from "./pages/SignIn";
-import Footer from "./components/Footer";
+import Profile from "./pages/Profile";
 
 function App() {
-  return <><SignIn /><Footer /></>;
+  return <><Profile /></>;
 }
 
 export default App;
