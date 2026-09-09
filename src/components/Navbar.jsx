@@ -16,9 +16,9 @@ function Navbar({ isLoggedIn, user }) {
         </div>
       </div>
       <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
-        <li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
+        <Link to={'/'}><li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
           Home
-        </li>
+        </li></Link>
         <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
           Deals
         </li>
@@ -30,10 +30,14 @@ function Navbar({ isLoggedIn, user }) {
         </li>
       </ul>
       <div className="flex gap-5 items-center">
-        <div className="cursor-pointer">
-          <img src="cart.png" alt="cart" className="size-9 inline" />
-          <p className="inline px-1 py-1 text-xl font-semibold box-border">0</p>
-        </div>
+        <Link to={"/cart"}>
+          <div className="cursor-pointer">
+            <img src="cart.png" alt="cart" className="size-9 inline" />
+            <p className="inline px-1 py-1 text-xl font-semibold box-border">
+              0
+            </p>
+          </div>
+        </Link>
         {isLoggedIn ? (
           <div className="relative group" id="profile-section">
             <button
@@ -49,12 +53,14 @@ function Navbar({ isLoggedIn, user }) {
                 <p className="text-xl font-semibold">Hi, {user?.name}</p>
                 <hr className="my-3 border-neutral-400" />
                 <ul className="space-y-2 text-md">
-                  <Link to={'/profile'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
-                    My Profile
-                  </li></Link>
-                  <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
+                  <Link to={"/profile"}>
+                    <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
+                      My Profile
+                    </li>
+                  </Link>
+                  <Link to={'/cart'}><li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Cart
-                  </li>
+                  </li></Link>
                   <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Order History
                   </li>
@@ -68,7 +74,7 @@ function Navbar({ isLoggedIn, user }) {
                   onClick={() => {
                     logout();
                     navigate("/");
-                    window.location.href = '/'
+                    window.location.href = "/";
                   }}
                   className="w-full rounded-xl border-2 border-red-600 py-2 text-lg font-semibold text-red-800 hover:bg-red-800 hover:text-white"
                 >

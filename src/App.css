@@ -1,0 +1,13 @@
+body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .donut-chart {
+      background: conic-gradient(
+        #6366f1 0% 35%,
+        #ef4444 35% 62%,
+        #10b981 62% 75%,
+        #f59e0b 75% 85%,
+        #cbd5e1 85% 100%
+      );
+    }

@@ -3,7 +3,8 @@ import { Routes, Route, Navigate, useLocation } from "react-router";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile"
+import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
 import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
@@ -12,7 +13,14 @@ import Unauthorized from "./pages/Unauthorized";
 function App() {
   const location = useLocation();
   const isLoggedIn = window.localStorage.getItem("loggedIn");
-  const user = window.localStorage.getItem("user");
+  const user = (() => {
+    try {
+      return JSON.parse(window.localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  })();
+
   const hideNavbar = ["/login", "/register"].includes(location.pathname);
 
   return (
@@ -30,14 +38,15 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<Navigate to="/" />} />
-          {user?.isAdmin === "true" ? (
-            <>
-              <Route path="/" element={<Dashboard />} />
+          {user?.isAdmin ? (
+            <>           
+              <Route path="/" element={<Dashboard />} />           
             </>
           ) : (
             <>
               <Route path="/" element={<Home />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
             </>
           )}
         </Route>

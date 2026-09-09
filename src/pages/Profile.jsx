@@ -293,7 +293,7 @@ function Profile() {
                 onChange={(event) => setDeletePassword(event.target.value)}
                 required
                 autoFocus
-                className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-[#282c4d]"
+                className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-#282c4d"
               />
               {error && <p className="text-sm/tight text-red-600">{error}</p>}
               <div className="flex justify-end gap-2">
