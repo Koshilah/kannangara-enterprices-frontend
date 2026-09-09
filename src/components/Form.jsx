@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function Form({
   title,
   handleSubmit,
@@ -6,25 +8,30 @@ function Form({
   setInputs,
   formElements,
   errorState,
-  systemError
+  systemError,
+  isSubmitting = false,
 }) {
   let accountStatusText = (
     <p className="text-sm">
       Already have an account?
-      <span className="text-blue-700 cursor-pointer hover:text-blue-950">
-        {" "}
-        Sign In
-      </span>
+      <Link to={"/login"}>
+        <span className="text-blue-700 cursor-pointer hover:text-blue-950">
+          {" "}
+          Sign In
+        </span>
+      </Link>
     </p>
   );
   if (title === "Sign In") {
     accountStatusText = (
       <p className="text-sm">
         Don't have an account?
-        <span className="text-blue-700 cursor-pointer hover:text-blue-950">
-          {" "}
-          Sign Up
-        </span>
+        <Link to={"/register"}>
+          <span className="text-blue-700 cursor-pointer hover:text-blue-950">
+            {" "}
+            Sign Up
+          </span>
+        </Link>
       </p>
     );
   }
@@ -35,7 +42,11 @@ function Form({
       className="flex flex-col px-3 pb-0 pt-4 mt-4 items-center min-w-xs max-w-lg mx-auto"
     >
       <p className="text-center text-3xl font-bold mb-4">{title}</p>
-      {systemError && <button className="border py-3 w-full bg-red-300 border-red-500 rounded-xl mb-1.5">{systemError}</button>}
+      {systemError && (
+        <button className="border py-3 w-full bg-red-300 border-red-500 rounded-xl mb-1.5">
+          {systemError}
+        </button>
+      )}
       {formElements.map((element) => (
         <div key={element.label} className="w-full mb-2.5">
           <label htmlFor={element.label} className="block mb-1 text-sm">
@@ -75,9 +86,20 @@ function Form({
       ))}
       <button
         type="submit"
-        className="rounded-xl bg-night-sky-500 text-white font-bold w-[80%] mt-3 mb-3 p-3.5 mx-auto text-lg/7 tracking-wide cursor-pointer hover:bg-night-sky-400"
+        disabled={isSubmitting}
+        className="rounded-xl bg-night-sky-500 text-white font-bold w-[80%] mt-3 mb-3 p-3.5 mx-auto text-lg/7 tracking-wide cursor-pointer hover:bg-night-sky-400 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {title}
+        {isSubmitting && (
+          <span
+            aria-hidden="true"
+            className="mr-2 inline-block size-5 animate-spin rounded-full border-2 border-white border-t-transparent align-[-0.2em]"
+          />
+        )}
+        <span>
+          {isSubmitting
+            ? `${title === "Sign In" ? "Signing In" : "Signing Up"}...`
+            : title}
+        </span>
       </button>
       {title === "Sign In" && (
         <p className="text-sm cursor-pointer text-blue-700 mb-2 hover:text-blue-900 ">

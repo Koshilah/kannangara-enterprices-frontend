@@ -141,7 +141,7 @@ function Profile() {
                     onChange={(event) =>
                       setPasswords({ ...passwords, next: event.target.value })
                     }
-                    className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-[#282c4d]"
+                    className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-#282c4d"
                   />
                   <button
                     type="submit"
@@ -164,7 +164,7 @@ function Profile() {
 
           <section
             aria-label="Account shortcuts"
-            className="grid max-w-[420px] grid-cols-2 gap-8"
+            className="grid max-w-420px grid-cols-2 gap-8"
           >
             <ProfileShortcut icon="bag" label="Your Orders" />
             <ProfileShortcut icon="dollar" label="Recent Transactions" />
@@ -196,7 +196,7 @@ function Profile() {
               <button
                 type="button"
                 onClick={() => setShowDeletePopup(false)}
-                className="rounded-md border border-[#282c4d] px-4 py-2 text-sm font-bold text-[#282c4d]"
+                className="rounded-md border border-#282c4d px-4 py-2 text-sm font-bold text-#282c4d"
               >
                 Cancel
               </button>
@@ -237,7 +237,7 @@ function ProfileField({
           value={draftValue}
           onChange={onChange}
           required
-          className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-[#282c4d]"
+          className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-#282c4d"
         />
       ) : (
         <p className="h-10 rounded border border-neutral-300 px-3 py-2.5 text-sm text-neutral-600">
@@ -252,7 +252,7 @@ function ProfileShortcut({ icon, label }) {
   return (
     <button
       type="button"
-      className="flex min-h-[120px] flex-col items-start justify-between rounded border border-neutral-400 bg-white p-5 text-left text-base hover:border-[#282c4d] lg:text-lg"
+      className="flex min-h-120px flex-col items-start justify-between rounded border border-neutral-400 bg-white p-5 text-left text-base hover:border-#282c4d lg:text-lg"
     >
       <span className="text-4xl leading-7" aria-hidden="true">
         {icon === "dollar" ? "$" : icon === "bag" ? "▢" : "◁"}

@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router";
+import { logout } from "../api/auth";
+
 function NavbarAdmin() {
+  const navigate = useNavigate();
+
   return (
     <nav className="px-5 py-1 w-dvw flex justify-between items-center">
       <div className="flex gap-0.5 items-center cursor-pointer">
@@ -50,6 +55,11 @@ function NavbarAdmin() {
               <hr className="my-4 border-neutral-400" />
               <button
                 type="button"
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                  window.location.href = '/'
+                }}
                 className="w-full rounded-xl border-2 border-red-600 py-2 text-lg font-semibold text-red-800 hover:bg-red-800 hover:text-white"
               >
                 Sign Out
