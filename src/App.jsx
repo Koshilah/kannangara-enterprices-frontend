@@ -9,10 +9,43 @@ import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
+import { products } from "./utility/products";
+import { getCart } from "./api/cart";
+import { useEffect, useState } from "react";
+
+const emptyCart = {items:[]};
+
+function normalizeCart(cartResponse) {
+  if (Array.isArray(cartResponse)) {
+    return { items: cartResponse };
+  }
+
+  return cartResponse?.items ? cartResponse : emptyCart;
+}
 
 function App() {
+  const [cart, setCart] = useState(emptyCart);
   const location = useLocation();
   const isLoggedIn = window.localStorage.getItem("loggedIn");
+
+  useEffect(() => {
+    if (!window.localStorage.getItem("token")) {
+      return;
+    }
+
+    async function loadCart() {
+      try {
+        const existingCart = await getCart();
+        setCart(normalizeCart(existingCart));
+      } catch (error) {
+        console.error("Unable to load cart", error);
+        setCart(emptyCart);
+      }
+    }
+
+    loadCart();
+  });
+
   const user = (() => {
     try {
       return JSON.parse(window.localStorage.getItem("user") || "null");
@@ -25,13 +58,18 @@ function App() {
 
   return (
     <>
-      {!hideNavbar && <RenderNavbar />}
+      {!hideNavbar && <RenderNavbar cart={cart} />}
       <Routes>
         {!isLoggedIn && (
           <>
             <Route path="/login" element={<SignIn />} />
             <Route path="/register" element={<SignUp />} />
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/"
+              element={
+                <Home products={products} cart={cart} setCart={setCart} />
+              }
+            />
           </>
         )}
         {/* ProtectedRoutes */}
@@ -39,14 +77,22 @@ function App() {
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<Navigate to="/" />} />
           {user?.isAdmin ? (
-            <>           
-              <Route path="/" element={<Dashboard />} />           
+            <>
+              <Route path="/" element={<Dashboard />} />
             </>
           ) : (
             <>
-              <Route path="/" element={<Home />} />
+              <Route
+                path="/"
+                element={
+                  <Home products={products} cart={cart} setCart={setCart} />
+                }
+              />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/cart" element={<Cart />} />
+              <Route
+                path="/cart"
+                element={<Cart cart={cart} setCart={setCart} />}
+              />
             </>
           )}
         </Route>

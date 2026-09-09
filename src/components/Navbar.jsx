@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { logout } from "../api/auth";
 
-function Navbar({ isLoggedIn, user }) {
+function Navbar({ isLoggedIn, user, cart }) {
   const navigate = useNavigate();
 
   return (
@@ -34,7 +34,7 @@ function Navbar({ isLoggedIn, user }) {
           <div className="cursor-pointer">
             <img src="cart.png" alt="cart" className="size-9 inline" />
             <p className="inline px-1 py-1 text-xl font-semibold box-border">
-              0
+              {cart.items.length}
             </p>
           </div>
         </Link>

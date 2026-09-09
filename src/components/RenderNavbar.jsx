@@ -1,7 +1,7 @@
 import Navbar from "./Navbar";
 import NavbarAdmin from "./NavbarAdmin";
 
-function RenderNavbar() {
+function RenderNavbar({cart}) {
   const isLoggedIn = window.localStorage.getItem("loggedIn") === "true";
   let user = null;
 
@@ -12,10 +12,10 @@ function RenderNavbar() {
   }
 
   if (isLoggedIn && user?.isAdmin) {
-    return <NavbarAdmin />;
+    return <NavbarAdmin user={user}/>;
   }
 
-  return <Navbar isLoggedIn={isLoggedIn} user={user} />;
+  return <Navbar cart={cart} isLoggedIn={isLoggedIn} user={user} />;
 }
 
 export default RenderNavbar;

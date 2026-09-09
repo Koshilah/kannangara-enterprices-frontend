@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { logout } from "../api/auth";
 
-function NavbarAdmin() {
+function NavbarAdmin({user}) {
   const navigate = useNavigate();
 
   return (
@@ -45,7 +45,7 @@ function NavbarAdmin() {
           </button>
           <div className="absolute right-0 top-full z-10 hidden w-64 pt-3 group-hover:block group-focus-within:block">
             <div className="border border-neutral-300 bg-white px-6 py-4 shadow-lg">
-              <p className="text-xl font-semibold">Hi, Admin</p>
+              <p className="text-xl font-semibold">Hi, {user?.name}</p>
               <hr className="my-3 border-neutral-400" />
               <ul className="space-y-2 text-md">
                 <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
