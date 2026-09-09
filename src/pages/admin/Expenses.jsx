@@ -141,9 +141,6 @@ function Expenses() {
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ff3b30]">
-              Finance management
-            </p>
             <h1 className="text-3xl font-extrabold tracking-[-0.5px] text-[#1a1a1a]">
               Expense Tracker
             </h1>
