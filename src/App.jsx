@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile"
 import Dashboard from "./pages/admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
@@ -29,13 +30,14 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<Navigate to="/" />} />
-          {user?.isAdmin ? (
+          {user?.isAdmin === "true" ? (
             <>
               <Route path="/" element={<Dashboard />} />
             </>
           ) : (
             <>
               <Route path="/" element={<Home />} />
+              <Route path="/profile" element={<Profile />} />
             </>
           )}
         </Route>

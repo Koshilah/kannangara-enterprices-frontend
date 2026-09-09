@@ -38,6 +38,17 @@ export async function register(userDetails) {
   return { token, user: decodeToken(token) };
 }
 
+export async function deleteAccount(password) {
+  const token = window.localStorage.getItem("token");
+  const response = await api.delete("/user", {
+    data: password,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response;
+}
+
 
 export function saveToLocalStorage(token, user){
     window.localStorage.setItem("loggedIn","true");

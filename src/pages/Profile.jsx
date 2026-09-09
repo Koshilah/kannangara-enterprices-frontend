@@ -1,10 +1,19 @@
 import { useState } from "react";
-import Navbar from "../components/Navbar";
+import { deleteAccount } from "../api/auth";
+
+const storedUser = window.localStorage.getItem("user");
+const user = (() => {
+  try {
+    return storedUser ? JSON.parse(storedUser) : {};
+  } catch {
+    return {};
+  }
+})();
 
 const defaultProfile = {
-  fullName: "Saman Kannangara",
-  email: "kamal@gmail.com",
-  phone: "077 123 4567",
+  fullName: user.fullName || user.name || "",
+  email: user.email || "",
+  phone: user.phone || "",
 };
 
 function Profile() {
@@ -14,6 +23,10 @@ function Profile() {
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [passwords, setPasswords] = useState({ current: "", next: "" });
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showDeletePasswordPopup, setShowDeletePasswordPopup] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [error, setError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const updateDraft = (event) => {
     setDraft({ ...draft, [event.target.name]: event.target.value });
@@ -35,9 +48,39 @@ function Profile() {
     setPasswords({ current: "", next: "" });
   };
 
+  const hanldleDelete = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsDeleting(true);
+
+    try {
+      await deleteAccount({ password: deletePassword });
+      window.localStorage.clear();
+      window.location.href = "/";
+    } catch (error) {
+      if (!error.response) {
+        setError("Something went wrong. Please try again.");
+        return;
+      }
+
+      const status = error.response?.status;
+      const message = error.response?.data?.message;
+
+      if (status === 400 || status === 401) {
+        setError(message);
+      } else if (status >= 500) {
+        setError("The server is unavailable. Please try again later.");
+      } else {
+        console.log(error)
+        setError("Unable to delete the account. Please try again.");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white text-black">
-      <Navbar />
+    <div className="w-dvw bg-white text-black">
       <main className="mx-auto min-h-[calc(100vh-72px)] w-full max-w-6xl px-6 py-8 sm:px-10 lg:px-20 xl:px-24">
         <h1 className="mb-12 text-center text-2xl font-bold lg:text-3xl">
           My Profile
@@ -99,8 +142,13 @@ function Profile() {
                 </button>
               )}
             </form>
+          </section>
 
-            <div className="mt-5 space-y-3">
+          <section
+            aria-label="Account actions and shortcuts"
+            className="space-y-8"
+          >
+            <div className="space-y-3">
               <button
                 type="button"
                 onClick={togglePasswordReset}
@@ -141,7 +189,7 @@ function Profile() {
                     onChange={(event) =>
                       setPasswords({ ...passwords, next: event.target.value })
                     }
-                    className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-#282c4d"
+                    className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-[#282c4d]"
                   />
                   <button
                     type="submit"
@@ -154,21 +202,21 @@ function Profile() {
 
               <button
                 type="button"
-                onClick={() => setShowDeletePopup(true)}
+                onClick={() => {
+                  setDeletePassword("");
+                  setShowDeletePopup(true);
+                }}
                 className="min-h-11 w-full rounded-md border border-red-700 bg-white text-sm font-bold text-red-700 hover:bg-red-50"
               >
                 Delete My Account
               </button>
             </div>
-          </section>
 
-          <section
-            aria-label="Account shortcuts"
-            className="grid max-w-420px grid-cols-2 gap-8"
-          >
-            <ProfileShortcut icon="bag" label="Your Orders" />
-            <ProfileShortcut icon="dollar" label="Recent Transactions" />
-            <ProfileShortcut icon="send" label="Your Deliveries" />
+            <div className="grid max-w-420px grid-cols-2 gap-8">
+              <ProfileShortcut icon="bag" label="Your Orders" />
+              <ProfileShortcut icon="dollar" label="Recent Transactions" />
+              <ProfileShortcut icon="send" label="Your Deliveries" />
+            </div>
           </section>
         </div>
       </main>
@@ -202,12 +250,84 @@ function Profile() {
               </button>
               <button
                 type="button"
-                onClick={() => setShowDeletePopup(false)}
+                onClick={() => {
+                  setShowDeletePopup(false);
+                  setDeletePassword("");
+                  setShowDeletePasswordPopup(true);
+                }}
                 className="rounded-md bg-red-700 px-4 py-2 text-sm font-bold text-white"
               >
                 Delete Account
               </button>
             </div>
+          </section>
+        </div>
+      )}
+
+      {showDeletePasswordPopup && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-5"
+          onClick={() => setShowDeletePasswordPopup(false)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-password-title"
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-sm rounded-md bg-white p-6 shadow-xl"
+          >
+            <h2 id="delete-password-title" className="text-xl font-bold">
+              Confirm your password
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">
+              Enter your password to permanently delete your account.
+            </p>
+            <form className="mt-5 space-y-4" onSubmit={hanldleDelete}>
+              <label className="block text-sm" htmlFor="delete-password">
+                Password
+              </label>
+              <input
+                id="delete-password"
+                type="password"
+                value={deletePassword}
+                onChange={(event) => setDeletePassword(event.target.value)}
+                required
+                autoFocus
+                className="h-10 w-full rounded border border-neutral-400 px-3 text-sm outline-none focus:border-[#282c4d]"
+              />
+              {error && <p className="text-sm/tight text-red-600">{error}</p>}
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeletePasswordPopup(false);
+                    setDeletePassword("");
+                    setError("");
+                  }}
+                  disabled={isDeleting}
+                  className="rounded-md border border-[#282c4d] px-4 py-2 text-sm font-bold text-[#282c4d]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isDeleting}
+                  className="rounded-md bg-red-700 px-4 py-2 text-sm font-bold text-white"
+                >
+                  {isDeleting ? (
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                        aria-hidden="true"
+                      />
+                      Deleting...
+                    </span>
+                  ) : (
+                    "Delete"
+                  )}
+                </button>
+              </div>
+            </form>
           </section>
         </div>
       )}

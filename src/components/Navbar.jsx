@@ -49,9 +49,9 @@ function Navbar({ isLoggedIn, user }) {
                 <p className="text-xl font-semibold">Hi, {user?.name}</p>
                 <hr className="my-3 border-neutral-400" />
                 <ul className="space-y-2 text-md">
-                  <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
+                  <Link to={'/profile'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
                     My Profile
-                  </li>
+                  </li></Link>
                   <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Cart
                   </li>
