@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Dashboard from "./pages/admin/Dashboard";
+import Expenses from "./pages/admin/Expenses";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
@@ -79,6 +80,7 @@ function App() {
           {user?.isAdmin ? (
             <>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/expenses" element={<Expenses />} />
             </>
           ) : (
             <>

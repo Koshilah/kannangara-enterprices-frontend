@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { logout } from "../api/auth";
 
-function NavbarAdmin({user}) {
+function NavbarAdmin({ user }) {
   const navigate = useNavigate();
 
   return (
@@ -12,13 +12,18 @@ function NavbarAdmin({user}) {
           <p className="text-night-sky-500 font-bold text-xl tracking-wide leading-none">
             Kannangara
           </p>
-          <p className="leading-none">Hardwares - <span className="text-night-sky-300 font-semibold">Admin Area</span></p>
+          <p className="leading-none">
+            Hardwares -{" "}
+            <span className="text-night-sky-300 font-semibold">Admin Area</span>
+          </p>
         </div>
       </div>
       <div className="flex gap-5 items-center">
         <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
           <li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
-            Dashboard
+            <button type="button" onClick={() => navigate("/")}>
+              Dashboard
+            </button>
           </li>
           <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Inventory
@@ -58,7 +63,7 @@ function NavbarAdmin({user}) {
                 onClick={() => {
                   logout();
                   navigate("/");
-                  window.location.href = '/'
+                  window.location.href = "/";
                 }}
                 className="w-full rounded-xl border-2 border-red-600 py-2 text-lg font-semibold text-red-800 hover:bg-red-800 hover:text-white"
               >

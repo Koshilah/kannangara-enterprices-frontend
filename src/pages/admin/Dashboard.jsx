@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router";
+
 function Dashboard() {
+  const navigate =useNavigate();
   return (
     <>
       <body class="m-0 bg-[#f4f6f9]  text-[#333333]">
@@ -33,7 +36,7 @@ function Dashboard() {
                 <i class="fa-solid fa-arrow-down"></i>
               </div>
 
-              <div class="flex flex-col">
+              <div class="flex flex-col cursor-pointer" onClick={() => navigate("/expenses")}>
                 <span class="mb-1 text-[13px] font-medium text-[#8c8c8c]">
                   Total Expenses
                 </span>
