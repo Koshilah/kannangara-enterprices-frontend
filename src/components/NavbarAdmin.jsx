@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { logout } from "../api/auth";
 
 function NavbarAdmin({ user }) {
@@ -31,9 +31,9 @@ function NavbarAdmin({ user }) {
           <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Orders
           </li>
-          <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+          <Link to={'/delivery'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Delivery
-          </li>
+          </li></Link>
           <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Employees
           </li>

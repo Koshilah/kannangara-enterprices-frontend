@@ -5,6 +5,7 @@ import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
+import Delivery from "./pages/admin/Delivery";
 import Dashboard from "./pages/admin/Dashboard";
 import Expenses from "./pages/admin/Expenses";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -81,6 +82,7 @@ function App() {
             <>
               <Route path="/" element={<Dashboard />} />
               <Route path="/expenses" element={<Expenses />} />
+              <Route path="/delivery" element={<Delivery />} />
             </>
           ) : (
             <>
