@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Delivery from "./pages/admin/Delivery";
+import Supplier from "./pages/admin/Supplier";
 import Dashboard from "./pages/admin/Dashboard";
 import Expenses from "./pages/admin/Expenses";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -83,6 +84,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/delivery" element={<Delivery />} />
+              <Route path="/suppliers" element={<Supplier />} />
             </>
           ) : (
             <>

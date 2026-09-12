@@ -31,6 +31,9 @@ function NavbarAdmin({ user }) {
           <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Orders
           </li>
+          <Link to={'/suppliers'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+            Suppliers
+          </li></Link>
           <Link to={'/delivery'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Delivery
           </li></Link>
