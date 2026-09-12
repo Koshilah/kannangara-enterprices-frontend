@@ -1,44 +1,24 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
-  withCredentials: true,
-});
-
-function authConfig() {
-  const token = window.localStorage.getItem("token");
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-}
+import { api } from "./auth";
 
 export async function getDeliveries() {
-  const response = await api.get("/delivery", authConfig());
+  const response = await api.get("/delivery");
   return response.data.data || [];
 }
 
 export async function updateDeliveryStatus(deliveryID, status) {
-  const response = await api.patch(
-    "/delivery/status",
-    { deliveryID, status },
-    authConfig(),
-  );
+  const response = await api.patch("/delivery/status", { deliveryID, status });
   return response.data.data;
 }
 
 export async function updateDeliveryDueDate(deliveryID, dueDate) {
-  const response = await api.patch(
-    "/delivery/due-date",
-    { deliveryID, dueDate },
-    authConfig(),
-  );
+  const response = await api.patch("/delivery/due-date", {
+    deliveryID,
+    dueDate,
+  });
   return response.data.data;
 }
 
 export async function deleteDelivery(deliveryID) {
-  const response = await api.delete(`/delivery/${deliveryID}`, authConfig());
+  const response = await api.delete(`/delivery/${deliveryID}`);
   return response.data;
 }

@@ -103,7 +103,7 @@ function Supplier() {
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">Operations</p><h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">Supplier management</h1><p className="mt-2 max-w-xl text-sm text-night-sky-200">Keep supplier contacts and product relationships ready for the team.</p></div>
+          <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p><h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">Supplier Management</h1><p className="mt-2 max-w-xl text-sm text-night-sky-200"></p></div>
           <SupplierSummary count={hasSearched ? visibleSuppliers.length : 0} hasSearched={hasSearched} />
         </header>
 

@@ -103,9 +103,9 @@ function Employee() {
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">Operations</p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">Employee management</h1>
-            <p className="mt-2 max-w-xl text-sm text-night-sky-200">Manage team access without deleting employee accounts.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">Employees</h1>
+            <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
           </div>
           <div className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 px-5 py-4 sm:text-right">
             <p className="text-xs font-semibold uppercase tracking-wider text-night-sky-200">Employees</p>

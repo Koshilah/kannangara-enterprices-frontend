@@ -148,13 +148,11 @@ function Delivery() {
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">
-              Operations
             </p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
-              Delivery management
+              Deliveries
             </h1>
             <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-              Track delivery commitments and keep every order moving.
             </p>
           </div>
           <div className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 px-5 py-4 sm:text-right">

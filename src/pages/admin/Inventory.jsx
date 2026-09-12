@@ -183,13 +183,11 @@ function Inventory() {
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">
-              Operations
             </p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
-              Inventory management
+              Inventory
             </h1>
             <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-              Keep stock levels accurate and products ready for the sales floor.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

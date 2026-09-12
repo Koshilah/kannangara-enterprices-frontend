@@ -108,7 +108,6 @@ function Profile() {
             My profile
           </h1>
           <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-            Manage the details and security settings for your admin account.
           </p>
         </header>
 
