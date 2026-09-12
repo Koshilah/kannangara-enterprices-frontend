@@ -4,8 +4,19 @@ import { addExpense, deleteExpense, getExpenses } from "../../api/expense";
 const emptyForm = {
   amount: "",
   shortDescription: "",
+  category: "other",
   date: new Date().toISOString().slice(0, 10),
 };
+
+const expenseCategories = [
+  ["inventory", "Inventory"],
+  ["salaries", "Salaries"],
+  ["utilities", "Utilities"],
+  ["marketing", "Marketing"],
+  ["rent", "Rent"],
+  ["transport", "Transport"],
+  ["other", "Other"],
+];
 
 function formatAmount(amount) {
   return new Intl.NumberFormat("en-LK", {
@@ -103,6 +114,7 @@ function Expenses() {
       const createdExpense = await addExpense({
         amount,
         shortDescription: form.shortDescription.trim(),
+        category: form.category,
         date: form.date,
       });
       setExpenses((currentExpenses) => [createdExpense, ...currentExpenses]);
@@ -238,6 +250,9 @@ function Expenses() {
                     <th className="border-b border-[#f0f0f0] pb-3 text-left font-medium text-[#8c8c8c]">
                       Description
                     </th>
+                    <th className="border-b border-[#f0f0f0] pb-3 text-left font-medium text-[#8c8c8c]">
+                      Category
+                    </th>
                     <th className="border-b border-[#f0f0f0] pb-3 text-right font-medium text-[#8c8c8c]">
                       Amount
                     </th>
@@ -250,7 +265,7 @@ function Expenses() {
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan="4"
+                        colSpan="5"
                         className="py-12 text-center text-[#8c8c8c]"
                       >
                         Loading expenses...
@@ -259,7 +274,7 @@ function Expenses() {
                   ) : expenses.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="4"
+                        colSpan="5"
                         className="py-12 text-center text-[#8c8c8c]"
                       >
                         No expenses recorded yet.
@@ -273,6 +288,12 @@ function Expenses() {
                         </td>
                         <td className="border-b border-[#f9f9f9] py-4 font-medium text-[#374151]">
                           {expense.shortDescription}
+                        </td>
+                        <td className="border-b border-[#f9f9f9] py-4 text-[#4b5563]">
+                          {expenseCategories.find(
+                            ([value]) =>
+                              value === (expense.category || "other"),
+                          )?.[1] || "Other"}
                         </td>
                         <td className="border-b border-[#f9f9f9] py-4 text-right font-bold text-[#e02424]">
                           - {formatAmount(expense.amount)}
@@ -351,6 +372,22 @@ function Expenses() {
                   required
                   className="w-full rounded-xl border border-[#e5e7eb] px-3 py-3 text-sm outline-none transition focus:border-[#ff3b30] focus:ring-2 focus:ring-[#ff3b30]/10"
                 />
+              </label>
+
+              <label className="flex flex-col gap-2 text-xs font-semibold text-[#4b5563]">
+                Category
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-3 text-sm outline-none transition focus:border-[#ff3b30] focus:ring-2 focus:ring-[#ff3b30]/10"
+                >
+                  {expenseCategories.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <label className="flex flex-col gap-2 text-xs font-semibold text-[#4b5563]">

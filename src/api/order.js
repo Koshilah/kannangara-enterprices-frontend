@@ -24,6 +24,19 @@ export async function getOrder(orderID) {
 }
 
 export async function cancelOrder(orderID) {
-  const response = await api.patch(`/order/${orderID}/cancel`, {}, authConfig());
+  const response = await api.patch(
+    `/order/${orderID}/cancel`,
+    {},
+    authConfig(),
+  );
+  return response.data.data;
+}
+
+export async function updatePaymentStatus(orderID, paymentStatus) {
+  const response = await api.patch(
+    `/order/${orderID}/payment`,
+    { paymentStatus },
+    authConfig(),
+  );
   return response.data.data;
 }
