@@ -5,7 +5,7 @@ function Navbar({ isLoggedIn, user, cart }) {
   const navigate = useNavigate();
 
   return (
-    <nav className="px-5 py-1 w-dvw flex justify-between items-center">
+    <nav className="flex w-full items-center justify-between px-5 py-1">
       <div className="flex gap-0.5 items-center cursor-pointer">
         <img src="/logo.png" alt="logo" className="size-14" />
         <div className="">
@@ -16,9 +16,11 @@ function Navbar({ isLoggedIn, user, cart }) {
         </div>
       </div>
       <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
-        <Link to={'/'}><li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
-          Home
-        </li></Link>
+        <Link to={"/"}>
+          <li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
+            Home
+          </li>
+        </Link>
         <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
           Deals
         </li>
@@ -58,9 +60,11 @@ function Navbar({ isLoggedIn, user, cart }) {
                       My Profile
                     </li>
                   </Link>
-                  <Link to={'/cart'}><li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
-                    Cart
-                  </li></Link>
+                  <Link to={"/cart"}>
+                    <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
+                      Cart
+                    </li>
+                  </Link>
                   <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Order History
                   </li>

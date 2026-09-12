@@ -11,7 +11,7 @@ function RenderNavbar({cart}) {
     return <Navbar cart={cart} isLoggedIn={isLoggedIn} user={null} />;
   }
 
-  if (isLoggedIn && (user?.isAdmin || user?.isMannager)) {
+  if (isLoggedIn && (user?.isAdmin || user?.isMannager || user?.isCashier)) {
     return <NavbarAdmin user={user}/>;
   }
 

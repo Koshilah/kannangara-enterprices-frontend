@@ -12,6 +12,8 @@ import Supplier from "./pages/admin/Supplier";
 import Dashboard from "./pages/admin/Dashboard";
 import Expenses from "./pages/admin/Expenses";
 import Employee from "./pages/admin/Employee";
+import Inventory from "./pages/admin/Inventory";
+import ProductForm from "./pages/admin/ProductForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
@@ -82,9 +84,14 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<Navigate to="/" />} />
+          {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
+            <Route path="/inventory" element={<Inventory />} />
+          )}
           {user?.isAdmin || user?.isMannager ? (
             <>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/inventory/new" element={<ProductForm />} />
+              <Route path="/inventory/:productID/edit" element={<ProductForm />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/orders" element={<Order />} />
               <Route path="/orders/:orderID" element={<OrderDetails />} />

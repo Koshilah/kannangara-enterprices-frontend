@@ -5,7 +5,7 @@ function NavbarAdmin({ user }) {
   const navigate = useNavigate();
 
   return (
-    <nav className="px-5 py-1 w-dvw flex justify-between items-center">
+    <nav className="flex w-full items-center justify-between px-5 py-1">
       <div className="flex gap-0.5 items-center cursor-pointer">
         <img src="/logo.png" alt="logo" className="size-14" />
         <div className="">
@@ -25,18 +25,26 @@ function NavbarAdmin({ user }) {
               Dashboard
             </button>
           </li>
-          <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-            Inventory
-          </li>
-          <Link to={'/orders'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-            Orders
-          </li></Link>
-          <Link to={'/suppliers'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-            Suppliers
-          </li></Link>
-          <Link to={'/delivery'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-            Delivery
-          </li></Link>
+          <Link to={"/inventory"}>
+            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+              Inventory
+            </li>
+          </Link>
+          <Link to={"/orders"}>
+            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+              Orders
+            </li>
+          </Link>
+          <Link to={"/suppliers"}>
+            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+              Suppliers
+            </li>
+          </Link>
+          <Link to={"/delivery"}>
+            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+              Delivery
+            </li>
+          </Link>
           {user?.isMannager && (
             <Link to="/employees">
               <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
