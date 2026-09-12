@@ -5,7 +5,7 @@ function NavbarAdmin({ user }) {
   const navigate = useNavigate();
 
   return (
-    <nav className="flex w-full items-center justify-between px-5 py-1">
+    <nav className="fixed inset-x-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-white px-5 py-1 shadow-sm">
       <div className="flex gap-0.5 items-center cursor-pointer">
         <img src="/logo.png" alt="logo" className="size-14" />
         <div className="">
@@ -69,7 +69,7 @@ function NavbarAdmin({ user }) {
               <hr className="my-3 border-neutral-400" />
               <ul className="space-y-2 text-md">
                 <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
-                  My Profile
+                  <Link to="/profile">My Profile</Link>
                 </li>
               </ul>
               <hr className="my-4 border-neutral-400" />

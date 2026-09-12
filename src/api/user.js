@@ -40,3 +40,18 @@ export async function demoteEmployee(employeeID) {
   );
   return response.data;
 }
+
+export async function getProfile() {
+  const response = await api.get("/user/profile", authConfig());
+  return response.data.data;
+}
+
+export async function updateProfile(profile) {
+  const response = await api.patch("/user/profile", profile, authConfig());
+  return response.data.data;
+}
+
+export async function updatePassword(passwords) {
+  const response = await api.patch("/user/profile/password", passwords, authConfig());
+  return response.data;
+}

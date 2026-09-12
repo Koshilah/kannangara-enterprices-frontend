@@ -14,6 +14,7 @@ import Expenses from "./pages/admin/Expenses";
 import Employee from "./pages/admin/Employee";
 import Inventory from "./pages/admin/Inventory";
 import ProductForm from "./pages/admin/ProductForm";
+import AdminProfile from "./pages/admin/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
@@ -21,7 +22,7 @@ import { products } from "./utility/products";
 import { getCart } from "./api/cart";
 import { useEffect, useState } from "react";
 
-const emptyCart = {items:[]};
+const emptyCart = { items: [] };
 
 function normalizeCart(cartResponse) {
   if (Array.isArray(cartResponse)) {
@@ -67,58 +68,66 @@ function App() {
   return (
     <>
       {!hideNavbar && <RenderNavbar cart={cart} />}
-      <Routes>
-        {!isLoggedIn && (
-          <>
-            <Route path="/login" element={<SignIn />} />
-            <Route path="/register" element={<SignUp />} />
-            <Route
-              path="/"
-              element={
-                <Home products={products} cart={cart} setCart={setCart} />
-              }
-            />
-          </>
-        )}
-        {/* ProtectedRoutes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/login" element={<Navigate to="/" />} />
-          <Route path="/register" element={<Navigate to="/" />} />
-          {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
-            <Route path="/inventory" element={<Inventory />} />
-          )}
-          {user?.isAdmin || user?.isMannager ? (
+      <div className={hideNavbar ? "" : "pt-16"}>
+        <Routes>
+          {!isLoggedIn && (
             <>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/inventory/new" element={<ProductForm />} />
-              <Route path="/inventory/:productID/edit" element={<ProductForm />} />
-              <Route path="/expenses" element={<Expenses />} />
-              <Route path="/orders" element={<Order />} />
-              <Route path="/orders/:orderID" element={<OrderDetails />} />
-              <Route path="/delivery" element={<Delivery />} />
-              <Route path="/suppliers" element={<Supplier />} />
-              {user?.isMannager && <Route path="/employees" element={<Employee />} />}
-            </>
-          ) : (
-            <>
+              <Route path="/login" element={<SignIn />} />
+              <Route path="/register" element={<SignUp />} />
               <Route
                 path="/"
                 element={
                   <Home products={products} cart={cart} setCart={setCart} />
                 }
               />
-              <Route path="/profile" element={<Profile />} />
-              <Route
-                path="/cart"
-                element={<Cart cart={cart} setCart={setCart} />}
-              />
             </>
           )}
-        </Route>
+          {/* ProtectedRoutes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/login" element={<Navigate to="/" />} />
+            <Route path="/register" element={<Navigate to="/" />} />
+            {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
+              <Route path="/inventory" element={<Inventory />} />
+            )}
+            {user?.isAdmin || user?.isMannager ? (
+              <>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/inventory/new" element={<ProductForm />} />
+                <Route
+                  path="/inventory/:productID/edit"
+                  element={<ProductForm />}
+                />
+                <Route path="/expenses" element={<Expenses />} />
+                <Route path="/orders" element={<Order />} />
+                <Route path="/orders/:orderID" element={<OrderDetails />} />
+                <Route path="/delivery" element={<Delivery />} />
+                <Route path="/suppliers" element={<Supplier />} />
+                <Route path="/profile" element={<AdminProfile />} />
+                {user?.isMannager && (
+                  <Route path="/employees" element={<Employee />} />
+                )}
+              </>
+            ) : (
+              <>
+                <Route
+                  path="/"
+                  element={
+                    <Home products={products} cart={cart} setCart={setCart} />
+                  }
+                />
+                <Route path="/profile" element={<Profile />} />
+                <Route
+                  path="/cart"
+                  element={<Cart cart={cart} setCart={setCart} />}
+                />
+              </>
+            )}
+          </Route>
 
-        <Route path="/about" element={null} />
-        <Route path="*" element={<Unauthorized />} />
-      </Routes>
+          <Route path="/about" element={null} />
+          <Route path="*" element={<Unauthorized />} />
+        </Routes>
+      </div>
     </>
   );
 }

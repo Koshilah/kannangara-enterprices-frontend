@@ -5,7 +5,7 @@ function Navbar({ isLoggedIn, user, cart }) {
   const navigate = useNavigate();
 
   return (
-    <nav className="flex w-full items-center justify-between px-5 py-1">
+    <nav className="fixed inset-x-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-white px-5 py-1 shadow-sm">
       <div className="flex gap-0.5 items-center cursor-pointer">
         <img src="/logo.png" alt="logo" className="size-14" />
         <div className="">

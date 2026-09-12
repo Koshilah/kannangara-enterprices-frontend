@@ -346,7 +346,7 @@ function ProductForm() {
                 <button
                   type="submit"
                   disabled={isSaving || isDeleting}
-                  className="rounded-xl bg-[#0f9f6e] px-5 py-3 text-sm font-bold text-white hover:bg-[#087f59] disabled:cursor-wait disabled:opacity-60"
+                  className="rounded-xl bg-night-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-[#087f59] disabled:cursor-wait disabled:opacity-60"
                 >
                   {isSaving
                     ? "Saving..."
