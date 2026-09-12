@@ -6,6 +6,8 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Delivery from "./pages/admin/Delivery";
+import Order from "./pages/admin/Order";
+import OrderDetails from "./pages/admin/OrderDetails";
 import Supplier from "./pages/admin/Supplier";
 import Dashboard from "./pages/admin/Dashboard";
 import Expenses from "./pages/admin/Expenses";
@@ -83,6 +85,8 @@ function App() {
             <>
               <Route path="/" element={<Dashboard />} />
               <Route path="/expenses" element={<Expenses />} />
+              <Route path="/orders" element={<Order />} />
+              <Route path="/orders/:orderID" element={<OrderDetails />} />
               <Route path="/delivery" element={<Delivery />} />
               <Route path="/suppliers" element={<Supplier />} />
             </>

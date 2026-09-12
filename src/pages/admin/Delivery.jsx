@@ -11,6 +11,7 @@ const statuses = [
   { value: "processing", label: "Processing" },
   { value: "out_for_delivery", label: "Out for delivery" },
   { value: "delivered", label: "Delivered" },
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 function dateInputValue(date) {

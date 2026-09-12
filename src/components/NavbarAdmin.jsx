@@ -28,9 +28,9 @@ function NavbarAdmin({ user }) {
           <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Inventory
           </li>
-          <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+          <Link to={'/orders'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Orders
-          </li>
+          </li></Link>
           <Link to={'/suppliers'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Suppliers
           </li></Link>
