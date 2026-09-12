@@ -37,9 +37,13 @@ function NavbarAdmin({ user }) {
           <Link to={'/delivery'}><li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
             Delivery
           </li></Link>
-          <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-            Employees
-          </li>
+          {user?.isMannager && (
+            <Link to="/employees">
+              <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+                Employees
+              </li>
+            </Link>
+          )}
         </ul>
 
         <div className="relative group" id="profile-section">

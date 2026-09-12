@@ -11,6 +11,7 @@ import OrderDetails from "./pages/admin/OrderDetails";
 import Supplier from "./pages/admin/Supplier";
 import Dashboard from "./pages/admin/Dashboard";
 import Expenses from "./pages/admin/Expenses";
+import Employee from "./pages/admin/Employee";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
@@ -81,7 +82,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<Navigate to="/" />} />
-          {user?.isAdmin ? (
+          {user?.isAdmin || user?.isMannager ? (
             <>
               <Route path="/" element={<Dashboard />} />
               <Route path="/expenses" element={<Expenses />} />
@@ -89,6 +90,7 @@ function App() {
               <Route path="/orders/:orderID" element={<OrderDetails />} />
               <Route path="/delivery" element={<Delivery />} />
               <Route path="/suppliers" element={<Supplier />} />
+              {user?.isMannager && <Route path="/employees" element={<Employee />} />}
             </>
           ) : (
             <>

@@ -3,15 +3,15 @@ import NavbarAdmin from "./NavbarAdmin";
 
 function RenderNavbar({cart}) {
   const isLoggedIn = window.localStorage.getItem("loggedIn") === "true";
-  let user = null;
+  let user;
 
   try {
     user = JSON.parse(window.localStorage.getItem("user") || "null");
   } catch {
-    user = null;
+    return <Navbar cart={cart} isLoggedIn={isLoggedIn} user={null} />;
   }
 
-  if (isLoggedIn && user?.isAdmin) {
+  if (isLoggedIn && (user?.isAdmin || user?.isMannager)) {
     return <NavbarAdmin user={user}/>;
   }
 
