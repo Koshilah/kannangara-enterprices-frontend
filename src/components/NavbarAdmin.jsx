@@ -1,8 +1,12 @@
-import { useNavigate, Link } from "react-router";
+import { useNavigate, NavLink, Link } from "react-router";
 import { logout } from "../api/auth";
 
 function NavbarAdmin({ user }) {
   const navigate = useNavigate();
+  const navLinkClass = ({ isActive }) =>
+    `inline-block cursor-pointer hover:text-night-sky-500 hover:font-bold ${
+      isActive ? "border-b-2 border-night-sky-500 pb-1 text-night-sky-500" : ""
+    }`;
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-white px-5 py-1 shadow-sm">
@@ -20,37 +24,37 @@ function NavbarAdmin({ user }) {
       </div>
       <div className="flex gap-5 items-center">
         <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
-          <li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
-            <button type="button" onClick={() => navigate("/")}>
+          <li>
+            <NavLink to="/" end className={navLinkClass}>
               Dashboard
-            </button>
+            </NavLink>
           </li>
-          <Link to={"/inventory"}>
-            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+          <li>
+            <NavLink to="/inventory" className={navLinkClass}>
               Inventory
-            </li>
-          </Link>
-          <Link to={"/orders"}>
-            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/orders" className={navLinkClass}>
               Orders
-            </li>
-          </Link>
-          <Link to={"/suppliers"}>
-            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/suppliers" className={navLinkClass}>
               Suppliers
-            </li>
-          </Link>
-          <Link to={"/delivery"}>
-            <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/delivery" className={navLinkClass}>
               Delivery
-            </li>
-          </Link>
+            </NavLink>
+          </li>
           {user?.isMannager && (
-            <Link to="/employees">
-              <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+            <li>
+              <NavLink to="/employees" className={navLinkClass}>
                 Employees
-              </li>
-            </Link>
+              </NavLink>
+            </li>
           )}
         </ul>
 
