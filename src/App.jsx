@@ -5,6 +5,7 @@ import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import Delivery from "./pages/admin/Delivery";
 import Order from "./pages/admin/Order";
 import OrderDetails from "./pages/admin/OrderDetails";
@@ -86,6 +87,14 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/login" element={<Navigate to="/" />} />
             <Route path="/register" element={<Navigate to="/" />} />
+            <Route
+              path="/cart"
+              element={<Cart cart={cart} setCart={setCart} />}
+            />
+            <Route
+              path="/checkout"
+              element={<Checkout cart={cart} setCart={setCart} />}
+            />
             {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
               <Route path="/inventory" element={<Inventory />} />
             )}
@@ -116,10 +125,6 @@ function App() {
                   }
                 />
                 <Route path="/profile" element={<Profile />} />
-                <Route
-                  path="/cart"
-                  element={<Cart cart={cart} setCart={setCart} />}
-                />
               </>
             )}
           </Route>

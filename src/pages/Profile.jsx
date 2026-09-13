@@ -59,8 +59,7 @@ function Profile() {
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Fetch live profile on mount to ensure fresh data without requiring a manual refresh
+  
   useEffect(() => {
     let isMounted = true;
     setIsLoadingProfile(true);

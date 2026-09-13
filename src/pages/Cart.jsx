@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router";
 import { products } from "../utility/products";
 import { removeFromCart, updateCartQuantity } from "../api/cart";
 
 function Cart({ cart, setCart }) {
+  const navigate = useNavigate();
   const items = Array.isArray(cart) ? cart : cart?.items || [];
   const rows = items.map((item) => {
     const productId = String(item.productId || item._id);
@@ -162,6 +164,7 @@ function Cart({ cart, setCart }) {
         <button
           type="button"
           disabled={rows.length === 0}
+          onClick={() => navigate("/checkout")}
           className="rounded-md bg-night-sky-500 px-8 py-3 font-semibold text-white transition-colors hover:bg-night-sky-300 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Proceed to Checkout

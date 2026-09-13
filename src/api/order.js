@@ -15,9 +15,22 @@ export async function cancelOrder(orderID) {
   return response.data.data;
 }
 
-export async function updatePaymentStatus(orderID, paymentStatus) {
-  const response = await api.patch(`/order/${orderID}/payment`, {
-    paymentStatus,
+export async function createOrder({
+  cartID,
+  paymentMethod,
+  deliveryAddress,
+  orderType,
+}) {
+  const response = await api.post("/order", {
+    cartID,
+    paymentMethod,
+    deliveryAddress,
+    orderType,
   });
-  return response.data.data;
+  return response.data;
+}
+
+export async function getMyOrders() {
+  const response = await api.get("/order/my-orders");
+  return response.data?.data || [];
 }
