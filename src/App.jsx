@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
+import Deals from "./pages/Deals";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
@@ -19,7 +20,7 @@ import AdminProfile from "./pages/admin/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
-import { products } from "./utility/products";
+import { getProducts } from "./api/product";
 import { getCart } from "./api/cart";
 import { useEffect, useState } from "react";
 
@@ -35,8 +36,25 @@ function normalizeCart(cartResponse) {
 
 function App() {
   const [cart, setCart] = useState(emptyCart);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const location = useLocation();
   const isLoggedIn = window.localStorage.getItem("loggedIn");
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Unable to load products", error);
+      } finally {
+        setProductsLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   useEffect(() => {
     if (!window.localStorage.getItem("token")) {
@@ -78,7 +96,23 @@ function App() {
               <Route
                 path="/"
                 element={
-                  <Home products={products} cart={cart} setCart={setCart} />
+                  <Home
+                    products={products}
+                    loading={productsLoading}
+                    cart={cart}
+                    setCart={setCart}
+                  />
+                }
+              />
+              <Route
+                path="/deals"
+                element={
+                  <Deals
+                    products={products}
+                    loading={productsLoading}
+                    cart={cart}
+                    setCart={setCart}
+                  />
                 }
               />
             </>
@@ -89,11 +123,15 @@ function App() {
             <Route path="/register" element={<Navigate to="/" />} />
             <Route
               path="/cart"
-              element={<Cart cart={cart} setCart={setCart} />}
+              element={
+                <Cart cart={cart} setCart={setCart} products={products} />
+              }
             />
             <Route
               path="/checkout"
-              element={<Checkout cart={cart} setCart={setCart} />}
+              element={
+                <Checkout cart={cart} setCart={setCart} products={products} />
+              }
             />
             {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
               <Route path="/inventory" element={<Inventory />} />
@@ -121,10 +159,26 @@ function App() {
                 <Route
                   path="/"
                   element={
-                    <Home products={products} cart={cart} setCart={setCart} />
+                    <Home
+                      products={products}
+                      loading={productsLoading}
+                      cart={cart}
+                      setCart={setCart}
+                    />
                   }
                 />
                 <Route path="/profile" element={<Profile />} />
+                <Route
+                  path="/deals"
+                  element={
+                    <Deals
+                      products={products}
+                      loading={productsLoading}
+                      cart={cart}
+                      setCart={setCart}
+                    />
+                  }
+                />
               </>
             )}
           </Route>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router";
-import { products } from "../utility/products";
 import { getAddresses, addAddress } from "../api/address";
 import { createOrder } from "../api/order";
 
@@ -23,7 +22,7 @@ function getEstimatedDeliveryDate() {
   });
 }
 
-function Checkout({ cart, setCart }) {
+function Checkout({ cart, setCart, products = [] }) {
   const navigate = useNavigate();
 
   const [orderType, setOrderType] = useState("delivery"); // "delivery" | "pickup"
@@ -57,7 +56,7 @@ function Checkout({ cart, setCart }) {
     return items.map((item) => {
       const productId = String(item.productId || item._id);
       const product = products.find(
-        (candidate) => String(candidate.id) === productId,
+        (candidate) => String(candidate._id || candidate.id) === productId,
       );
       const quantity = Number(item.quantity) || 1;
       const unitPrice = Number(
@@ -72,13 +71,14 @@ function Checkout({ cart, setCart }) {
         ...item,
         productId,
         title: item.title || product?.title || "Hardware Item",
-        image: item.imageURL || item.image || product?.image,
+        image:
+          item.imageURL || item.image || product?.imageURL || product?.image,
         quantity,
         unitPrice,
         totalPrice: Number(item.totalPrice) || unitPrice * quantity,
       };
     });
-  }, [cart]);
+  }, [cart, products]);
 
   const subtotal = useMemo(() => {
     return rows.reduce((acc, row) => acc + row.totalPrice, 0);

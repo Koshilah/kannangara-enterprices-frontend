@@ -21,9 +21,11 @@ function Navbar({ isLoggedIn, user, cart }) {
             Home
           </li>
         </Link>
-        <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-          Deals
-        </li>
+        <Link to={"/deals"}>
+          <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+            Deals
+          </li>
+        </Link>
         <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
           About Us
         </li>

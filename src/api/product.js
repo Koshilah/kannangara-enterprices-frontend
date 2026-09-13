@@ -1,7 +1,12 @@
+import axios from "axios";
 import { api } from "./auth";
 
+const publicApi = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+});
+
 export async function getProducts() {
-  const response = await api.get("/product");
+  const response = await publicApi.get("/product");
   return response.data.data || [];
 }
 

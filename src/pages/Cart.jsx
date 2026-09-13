@@ -1,24 +1,27 @@
 import { useNavigate } from "react-router";
-import { products } from "../utility/products";
 import { removeFromCart, updateCartQuantity } from "../api/cart";
 
-function Cart({ cart, setCart }) {
+function Cart({ cart, setCart, products = [] }) {
   const navigate = useNavigate();
   const items = Array.isArray(cart) ? cart : cart?.items || [];
   const rows = items.map((item) => {
     const productId = String(item.productId || item._id);
     const product = products.find(
-      (candidate) => String(candidate.id) === productId,
+      (candidate) => String(candidate._id || candidate.id) === productId,
     );
     const quantity = Number(item.quantity) || 0;
     const unitPrice = Number(
-      item.discountPrice || item.price || product?.price || 0,
+      item.discountPrice ||
+        item.price ||
+        product?.discountPrice ||
+        product?.price ||
+        0,
     );
 
     return {
       ...item,
       title: item.title || product?.title || "Product",
-      image: item.imageURL || item.image || product?.image,
+      image: item.imageURL || item.image || product?.imageURL || product?.image,
       quantity,
       unitPrice,
       totalPrice: Number(item.totalPrice) || unitPrice * quantity,
