@@ -1,8 +1,12 @@
-import { Link, useNavigate } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import { logout } from "../api/auth";
 
 function Navbar({ isLoggedIn, user, cart }) {
   const navigate = useNavigate();
+  const navLinkClass = ({ isActive }) =>
+    `inline-block cursor-pointer hover:text-night-sky-500 hover:font-bold ${
+      isActive ? "border-b-2 border-night-sky-500 pb-1 text-night-sky-500" : ""
+    }`;
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-white px-5 py-1 shadow-sm">
@@ -16,16 +20,16 @@ function Navbar({ isLoggedIn, user, cart }) {
         </div>
       </div>
       <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
-        <Link to={"/"}>
-          <li className="cursor-pointer  hover:text-night-sky-500 hover:font-bold">
+        <li>
+          <NavLink to="/" end className={navLinkClass}>
             Home
-          </li>
-        </Link>
-        <Link to={"/deals"}>
-          <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/deals" className={navLinkClass}>
             Deals
-          </li>
-        </Link>
+          </NavLink>
+        </li>
         <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
           About Us
         </li>
@@ -67,9 +71,9 @@ function Navbar({ isLoggedIn, user, cart }) {
                       Cart
                     </li>
                   </Link>
-                  <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
+                  <Link to={'/my-orders'}><li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Order History
-                  </li>
+                  </li></Link>
                   <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Recent Transaction
                   </li>

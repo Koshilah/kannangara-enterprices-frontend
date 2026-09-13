@@ -7,6 +7,7 @@ import Deals from "./pages/Deals";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 import Delivery from "./pages/admin/Delivery";
 import Order from "./pages/admin/Order";
 import OrderDetails from "./pages/admin/OrderDetails";
@@ -133,6 +134,7 @@ function App() {
                 <Checkout cart={cart} setCart={setCart} products={products} />
               }
             />
+            <Route path="/my-orders" element={<MyOrders />} />
             {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
               <Route path="/inventory" element={<Inventory />} />
             )}
