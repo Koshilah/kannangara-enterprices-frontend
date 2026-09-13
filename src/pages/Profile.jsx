@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
 import { getProfile, updateProfile, updatePassword } from "../api/user";
 import { deleteAccount } from "../api/auth";
+import ProfileInputField from "../components/ProfileInputField";
+import ProfileShortcut from "../components/ProfileShortcut";
 
 function getStoredUser() {
   try {
@@ -36,7 +37,7 @@ function Profile() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-
+  // Password reset state
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [passwords, setPasswords] = useState({
     current: "",
@@ -59,6 +60,7 @@ function Profile() {
   const [deleteError, setDeleteError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Fetch live profile on mount to ensure fresh data without requiring a manual refresh
   useEffect(() => {
     let isMounted = true;
     setIsLoadingProfile(true);
@@ -889,56 +891,6 @@ function Profile() {
   );
 }
 
-function ProfileInputField({
-  id,
-  name,
-  label,
-  type = "text",
-  value,
-  draftValue,
-  isEditing,
-  onChange,
-  placeholder,
-  icon,
-}) {
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="mb-1.5 block text-xs font-bold text-night-sky-300"
-      >
-        {label}
-      </label>
-
-      {isEditing ? (
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            {icon}
-          </div>
-          <input
-            id={id}
-            name={name}
-            type={type}
-            value={draftValue}
-            onChange={onChange}
-            placeholder={placeholder}
-            className="h-11 w-full rounded-xl border border-night-sky-100/30 bg-slate-50/50 pl-10 pr-3 text-sm font-medium text-night-sky-500 outline-none transition focus:border-night-sky-400 focus:bg-white focus:ring-2 focus:ring-night-sky-200/20"
-          />
-        </div>
-      ) : (
-        <div className="flex h-11 items-center gap-3 rounded-xl border border-night-sky-100/15 bg-slate-50/60 px-3.5 text-sm font-medium text-night-sky-500">
-          <div className="shrink-0">{icon}</div>
-          <span className="truncate">
-            {value || (
-              <span className="text-night-sky-200 italic">Not set</span>
-            )}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function PasswordInputField({
   id,
   label,
@@ -1012,38 +964,6 @@ function PasswordInputField({
         </button>
       </div>
     </div>
-  );
-}
-
-function ProfileShortcut({ to, icon, title, subtitle }) {
-  return (
-    <Link
-      to={to}
-      className="group flex items-center gap-3.5 rounded-xl border border-night-sky-100/20 bg-slate-50/50 p-4 transition-all hover:-translate-y-0.5 hover:border-night-sky-300 hover:bg-white hover:shadow-sm"
-    >
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-2xs group-hover:bg-night-sky-100/10 transition">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-bold text-night-sky-500 group-hover:text-night-sky-400 transition">
-          {title}
-        </p>
-        <p className="truncate text-[11px] text-night-sky-100">{subtitle}</p>
-      </div>
-      <svg
-        className="size-4 text-night-sky-200 transition group-hover:translate-x-0.5 group-hover:text-night-sky-400"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 5l7 7-7 7"
-        />
-      </svg>
-    </Link>
   );
 }
 
