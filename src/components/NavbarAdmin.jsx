@@ -3,6 +3,9 @@ import { logout } from "../api/auth";
 
 function NavbarAdmin({ user }) {
   const navigate = useNavigate();
+  const isManager = Boolean(user?.isMannager);
+  const isAdmin = Boolean(user?.isAdmin);
+  const canManageAdminPanel = isManager || isAdmin;
   const navLinkClass = ({ isActive }) =>
     `inline-block cursor-pointer hover:text-night-sky-500 hover:font-bold ${
       isActive ? "border-b-2 border-night-sky-500 pb-1 text-night-sky-500" : ""
@@ -24,37 +27,48 @@ function NavbarAdmin({ user }) {
       </div>
       <div className="flex gap-5 items-center">
         <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
-          <li>
-            <NavLink to="/" end className={navLinkClass}>
-              Dashboard
-            </NavLink>
-          </li>
+          {isManager && (
+            <li>
+              <NavLink to="/" end className={navLinkClass}>
+                Dashboard
+              </NavLink>
+            </li>
+          )}
           <li>
             <NavLink to="/inventory" className={navLinkClass}>
               Inventory
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/orders" className={navLinkClass}>
-              Orders
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/suppliers" className={navLinkClass}>
-              Suppliers
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/delivery" className={navLinkClass}>
-              Delivery
-            </NavLink>
-          </li>
-          {user?.isMannager && (
-            <li>
-              <NavLink to="/employees" className={navLinkClass}>
-                Employees
-              </NavLink>
-            </li>
+          {canManageAdminPanel && (
+            <>
+              <li>
+                <NavLink to="/orders" className={navLinkClass}>
+                  Orders
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/suppliers" className={navLinkClass}>
+                  Suppliers
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/delivery" className={navLinkClass}>
+                  Delivery
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/expenses" className={navLinkClass}>
+                  Expenses
+                </NavLink>
+              </li>
+              {isManager && (
+                <li>
+                  <NavLink to="/employees" className={navLinkClass}>
+                    Employees
+                  </NavLink>
+                </li>
+              )}
+            </>
           )}
         </ul>
 
@@ -72,9 +86,11 @@ function NavbarAdmin({ user }) {
               <p className="text-xl font-semibold">Hi, {user?.name}</p>
               <hr className="my-3 border-neutral-400" />
               <ul className="space-y-2 text-md">
-                <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
-                  <Link to="/profile">My Profile</Link>
-                </li>
+                
+                  <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
+                    <Link to="/profile">My Profile</Link>
+                  </li>
+                
               </ul>
               <hr className="my-4 border-neutral-400" />
               <button

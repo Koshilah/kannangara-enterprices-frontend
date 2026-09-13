@@ -83,6 +83,11 @@ function App() {
     }
   })();
 
+  const isAdmin = Boolean(user?.isAdmin);
+  const isManager = Boolean(user?.isMannager);
+  const isCashier = Boolean(user?.isCashier);
+  const isAdminPanelUser = isAdmin || isManager || isCashier;
+
   const hideNavbar = ["/login", "/register"].includes(location.pathname);
 
   return (
@@ -135,25 +140,34 @@ function App() {
               }
             />
             <Route path="/my-orders" element={<MyOrders />} />
-            {(user?.isAdmin || user?.isMannager || user?.isCashier) && (
-              <Route path="/inventory" element={<Inventory />} />
-            )}
-            {user?.isAdmin || user?.isMannager ? (
+            {isAdminPanelUser ? (
               <>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/inventory/new" element={<ProductForm />} />
-                <Route
-                  path="/inventory/:productID/edit"
-                  element={<ProductForm />}
-                />
-                <Route path="/expenses" element={<Expenses />} />
-                <Route path="/orders" element={<Order />} />
-                <Route path="/orders/:orderID" element={<OrderDetails />} />
-                <Route path="/delivery" element={<Delivery />} />
-                <Route path="/suppliers" element={<Supplier />} />
-                <Route path="/profile" element={<AdminProfile />} />
-                {user?.isMannager && (
+                <Route path="/inventory" element={<Inventory />} />
+                {isManager && <Route path="/" element={<Dashboard />} />}
+                {(isManager || isAdmin) && (
+                  <>
+                    <Route path="/inventory/new" element={<ProductForm />} />
+                    <Route
+                      path="/inventory/:productID/edit"
+                      element={<ProductForm />}
+                    />
+                    <Route path="/expenses" element={<Expenses />} />
+                    <Route path="/orders" element={<Order />} />
+                    <Route path="/orders/:orderID" element={<OrderDetails />} />
+                    <Route path="/delivery" element={<Delivery />} />
+                    <Route path="/suppliers" element={<Supplier />} />
+                    <Route path="/profile" element={<AdminProfile />} />
+                  </>
+                )}
+                {isManager && (
                   <Route path="/employees" element={<Employee />} />
+                )}
+                {!isManager && (
+                  <><Route
+                    path="/"
+                    element={<Navigate to="/inventory" replace />}
+                  />
+                  <Route path="/profile" element={<AdminProfile />} /></>
                 )}
               </>
             ) : (
