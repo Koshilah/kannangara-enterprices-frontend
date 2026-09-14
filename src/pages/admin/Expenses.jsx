@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { addExpense, deleteExpense, getExpenses } from "../../api/expense";
+import {
+  addExpense,
+  deleteExpense,
+  getExpenses,
+  updateExpense,
+} from "../../api/expense";
 
 const emptyForm = {
   amount: "",
@@ -38,6 +43,7 @@ function Expenses() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -93,6 +99,25 @@ function Expenses() {
     setNotice("");
   }
 
+  function startEditing(expense) {
+    setSelectedExpenseId(expense._id);
+    setForm({
+      amount: String(expense.amount),
+      shortDescription: expense.shortDescription,
+      category: expense.category || "other",
+      date: new Date(expense.date).toISOString().slice(0, 10),
+    });
+    setError("");
+    setNotice("");
+  }
+
+  function cancelEditing() {
+    setSelectedExpenseId(null);
+    setForm(emptyForm);
+    setError("");
+    setNotice("");
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
@@ -111,17 +136,37 @@ function Expenses() {
 
     setIsSaving(true);
     try {
-      const createdExpense = await addExpense({
+      const expenseData = {
         amount,
         shortDescription: form.shortDescription.trim(),
         category: form.category,
         date: form.date,
-      });
-      setExpenses((currentExpenses) => [createdExpense, ...currentExpenses]);
+      };
+
+      if (selectedExpenseId) {
+        const updatedExpense = await updateExpense(
+          selectedExpenseId,
+          expenseData,
+        );
+        setExpenses((currentExpenses) =>
+          currentExpenses.map((expense) =>
+            expense._id === selectedExpenseId ? updatedExpense : expense,
+          ),
+        );
+        setNotice("Expense updated successfully.");
+      } else {
+        const createdExpense = await addExpense(expenseData);
+        setExpenses((currentExpenses) => [createdExpense, ...currentExpenses]);
+        setNotice("Expense added successfully.");
+      }
+
+      setSelectedExpenseId(null);
       setForm(emptyForm);
-      setNotice("Expense added successfully.");
     } catch (saveError) {
-      setError(saveError.response?.data?.message || "Unable to add expense.");
+      setError(
+        saveError.response?.data?.message ||
+          `Unable to ${selectedExpenseId ? "update" : "add"} expense.`,
+      );
     } finally {
       setIsSaving(false);
     }
@@ -139,6 +184,10 @@ function Expenses() {
         currentExpenses.filter((expense) => expense._id !== expenseId),
       );
       setNotice("Expense deleted successfully.");
+      if (selectedExpenseId === expenseId) {
+        setSelectedExpenseId(null);
+        setForm(emptyForm);
+      }
     } catch (deleteError) {
       setError(
         deleteError.response?.data?.message || "Unable to delete expense.",
@@ -282,7 +331,23 @@ function Expenses() {
                     </tr>
                   ) : (
                     expenses.map((expense) => (
-                      <tr key={expense._id}>
+                      <tr
+                        key={expense._id}
+                        onClick={() => startEditing(expense)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            startEditing(expense);
+                          }
+                        }}
+                        tabIndex="0"
+                        className={`cursor-pointer transition hover:bg-[#fffaf9] focus:bg-[#fffaf9] focus:outline-none ${
+                          selectedExpenseId === expense._id
+                            ? "bg-[#fff7f5]"
+                            : ""
+                        }`}
+                        title="Click to edit expense"
+                      >
                         <td className="border-b border-[#f9f9f9] py-4 text-[#4b5563]">
                           {formatDate(expense.date)}
                         </td>
@@ -301,7 +366,10 @@ function Expenses() {
                         <td className="border-b border-[#f9f9f9] py-4 text-right">
                           <button
                             type="button"
-                            onClick={() => handleDelete(expense._id)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDelete(expense._id);
+                            }}
                             disabled={deletingId === expense._id}
                             className="inline-flex size-9 items-center justify-center rounded-lg text-[#ef4444] transition hover:bg-[#fff1f2] disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label={`Delete ${expense.shortDescription}`}
@@ -328,14 +396,19 @@ function Expenses() {
             <div className="mb-6 flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-base font-bold text-[#1a1a1a]">
-                  Add expense
+                  {selectedExpenseId ? "Edit expense" : "Add expense"}
                 </h2>
                 <p className="mt-1 text-xs text-[#8c8c8c]">
-                  Record a new business expense.
+                  {selectedExpenseId
+                    ? "Update the selected expense."
+                    : "Record a new business expense."}
                 </p>
               </div>
               <div className="flex size-10 items-center justify-center rounded-xl bg-[#ffeef0] text-[#ff4d4f]">
-                <i className="fa-solid fa-plus" aria-hidden="true"></i>
+                <i
+                  className={`fa-solid ${selectedExpenseId ? "fa-pen" : "fa-plus"}`}
+                  aria-hidden="true"
+                ></i>
               </div>
             </div>
 
@@ -408,11 +481,31 @@ function Expenses() {
                 className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-[#ff3b30] px-4 py-3 text-sm font-bold text-white shadow-[0_4px_12px_rgba(255,59,48,0.2)] transition hover:bg-[#e22f25] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <i
-                  className={`fa-solid ${isSaving ? "fa-spinner fa-spin" : "fa-plus"}`}
+                  className={`fa-solid ${
+                    isSaving
+                      ? "fa-spinner fa-spin"
+                      : selectedExpenseId
+                        ? "fa-pen"
+                        : "fa-plus"
+                  }`}
                   aria-hidden="true"
                 ></i>
-                {isSaving ? "Saving..." : "Add expense"}
+                {isSaving
+                  ? "Saving..."
+                  : selectedExpenseId
+                    ? "Update expense"
+                    : "Add expense"}
               </button>
+              {selectedExpenseId && (
+                <button
+                  type="button"
+                  onClick={cancelEditing}
+                  disabled={isSaving}
+                  className="flex items-center justify-center rounded-xl border border-[#e5e7eb] px-4 py-3 text-sm font-bold text-[#6b7280] transition hover:bg-[#f9fafb] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel editing
+                </button>
+              )}
             </div>
           </form>
         </section>

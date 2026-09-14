@@ -10,6 +10,11 @@ export async function addExpense(expense) {
   return response.data.data;
 }
 
+export async function updateExpense(expenseId, expense) {
+  const response = await api.patch(`/expense/${expenseId}`, expense);
+  return response.data.data;
+}
+
 export async function deleteExpense(expenseId) {
   const response = await api.delete(`/expense/${expenseId}`);
   return response.data;
