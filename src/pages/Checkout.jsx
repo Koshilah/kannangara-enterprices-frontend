@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router";
 import { getAddresses, addAddress } from "../api/address";
 import { createOrder } from "../api/order";
+import { downloadReceipt } from "../utility/receipt";
 
 function formatCurrency(amount) {
   return Number(amount || 0).toLocaleString("en-LK", {
@@ -12,7 +13,6 @@ function formatCurrency(amount) {
 
 function getEstimatedDeliveryDate() {
   const date = new Date();
-  // Add 3 to 5 business days
   date.setDate(date.getDate() + 3);
   return date.toLocaleDateString("en-US", {
     weekday: "long",
@@ -47,6 +47,7 @@ function Checkout({ cart, setCart, products = [] }) {
 
   // Order submission
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [orderSuccessData, setOrderSuccessData] = useState(null);
 
@@ -239,7 +240,6 @@ function Checkout({ cart, setCart, products = [] }) {
           orderType,
           paymentMethod: resolvedPaymentMethod,
           deliveryAddress: finalDeliveryAddress,
-          estimatedDate: getEstimatedDeliveryDate(),
         });
       }
     } catch (err) {
@@ -253,9 +253,23 @@ function Checkout({ cart, setCart, products = [] }) {
     }
   };
 
+  const handleDownloadReceipt = async () => {
+    setIsDownloadingReceipt(true);
+    setSubmissionError("");
+
+    try {
+      await downloadReceipt(orderSuccessData?.order);
+    } catch (error) {
+      console.error("Receipt download failed", error);
+      setSubmissionError("Unable to download the receipt. Please try again.");
+    } finally {
+      setIsDownloadingReceipt(false);
+    }
+  };
+
   // If order was successfully placed, render Order Confirmation View
   if (orderSuccessData) {
-    const { order, estimatedDate } = orderSuccessData;
+    const { order } = orderSuccessData;
     return (
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
@@ -333,7 +347,11 @@ function Checkout({ cart, setCart, products = [] }) {
                       Estimated Delivery Date:
                     </span>
                     <span className="text-sm font-bold text-night-sky-500">
-                      {estimatedDate}
+                      {order.estimatedDeliveryDate
+                        ? new Date(
+                            order.estimatedDeliveryDate,
+                          ).toLocaleDateString("en-LK", { dateStyle: "full" })
+                        : "Within 3 days"}
                     </span>
                   </div>
                 </div>
@@ -342,6 +360,16 @@ function Checkout({ cart, setCart, products = [] }) {
           </div>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleDownloadReceipt}
+              disabled={isDownloadingReceipt}
+              className="rounded-md bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-60"
+            >
+              {isDownloadingReceipt
+                ? "Preparing Receipt..."
+                : "Download Receipt"}
+            </button>
             <button
               type="button"
               onClick={() => navigate("/")}

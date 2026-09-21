@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getMyOrders, cancelOrder } from "../api/order";
+import { downloadReceipt } from "../utility/receipt";
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 
@@ -129,7 +130,13 @@ function DeliveryTracker({ status }) {
 
 /* ─── Single expanded order card ────────────────────────────────── */
 
-function OrderCard({ order, onCancel, isCancelling }) {
+function OrderCard({
+  order,
+  onCancel,
+  isCancelling,
+  onDownload,
+  isDownloading,
+}) {
   const [expanded, setExpanded] = useState(false);
 
   const orderID = order._id || order.id || "";
@@ -171,6 +178,14 @@ function OrderCard({ order, onCancel, isCancelling }) {
             aria-expanded={expanded}
           >
             {expanded ? "Hide" : "Details"}
+            <button
+              type="button"
+              onClick={() => onDownload(order)}
+              disabled={isDownloading}
+              className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-wait disabled:opacity-50"
+            >
+              {isDownloading ? "Preparing..." : "Receipt"}
+            </button>
             <svg
               className={`size-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
               fill="none"
@@ -395,6 +410,7 @@ function MyOrders() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [cancellingID, setCancellingID] = useState(null);
+  const [downloadingReceiptID, setDownloadingReceiptID] = useState(null);
 
   // Filter state
   const [filter, setFilter] = useState("all");
@@ -452,6 +468,21 @@ function MyOrders() {
       setError(err.response?.data?.message || "Unable to cancel order.");
     } finally {
       setCancellingID(null);
+    }
+  }
+
+  async function handleDownloadReceipt(order) {
+    setDownloadingReceiptID(order._id);
+    setError("");
+
+    try {
+      await downloadReceipt(order);
+      setNotice("Receipt downloaded successfully.");
+    } catch (downloadError) {
+      console.error("Receipt download failed", downloadError);
+      setError("Unable to download the receipt. Please try again.");
+    } finally {
+      setDownloadingReceiptID(null);
     }
   }
 
@@ -647,6 +678,8 @@ function MyOrders() {
                   order={order}
                   onCancel={handleCancel}
                   isCancelling={cancellingID === order._id}
+                  onDownload={handleDownloadReceipt}
+                  isDownloading={downloadingReceiptID === order._id}
                 />
               ))
           )}
