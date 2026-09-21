@@ -13,7 +13,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { getFinancialSummary } from "../../api/finance";
+import { getFinancialReport, getFinancialSummary } from "../../api/finance";
+import { downloadFinancialReport } from "../../utility/financialReport";
 
 const categoryLabels = {
   inventory: "Inventory",
@@ -42,11 +43,19 @@ function formatAmount(amount) {
   }).format(Number(amount || 0));
 }
 
+function currentMonthValue() {
+  return new Date().toISOString().slice(0, 7);
+}
+
 function Dashboard() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportMonth, setReportMonth] = useState(currentMonthValue);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -82,28 +91,66 @@ function Dashboard() {
   }));
   const value = (amount) => (isLoading ? "Loading..." : formatAmount(amount));
 
+  function openReportModal() {
+    setReportError("");
+    setReportMonth(currentMonthValue());
+    setIsReportModalOpen(true);
+  }
+
+  async function handleGenerateReport(event) {
+    event.preventDefault();
+    setReportError("");
+
+    if (!reportMonth || reportMonth > currentMonthValue()) {
+      setReportError("Choose the current month or an earlier month.");
+      return;
+    }
+
+    setIsGeneratingReport(true);
+    try {
+      const report = await getFinancialReport(reportMonth);
+      await downloadFinancialReport(report);
+      setIsReportModalOpen(false);
+    } catch (reportGenerationError) {
+      setReportError(
+        reportGenerationError.response?.data?.message ||
+          "Unable to generate the financial report.",
+      );
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  }
+
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
               Financial Dashboard
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-            </p>
+            <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
           </div>
-          <div className="rounded-xl border border-night-sky-100/20 bg-night-sky-100/10 px-4 py-3 text-left text-xs font-bold text-night-sky-400 sm:text-right">
-            <span className="block uppercase tracking-wider text-night-sky-300">
-              Reporting period
-            </span>
-            <span className="mt-1 block text-sm text-night-sky-500">
-              {summary?.period
-                ? `${summary.period.from} to ${summary.period.to}`
-                : "Last 12 months"}
-            </span>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="rounded-xl border border-night-sky-100/20 bg-night-sky-100/10 px-4 py-3 text-left text-xs font-bold text-night-sky-400 sm:text-right">
+              <span className="block uppercase tracking-wider text-night-sky-300">
+                Reporting period
+              </span>
+              <span className="mt-1 block text-sm text-night-sky-500">
+                {summary?.period
+                  ? `${summary.period.from} to ${summary.period.to}`
+                  : "Last 12 months"}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={openReportModal}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-night-sky-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-night-sky-400"
+            >
+              <i className="fa-solid fa-file-arrow-down" aria-hidden="true" />
+              Generate Report
+            </button>
           </div>
         </header>
 
@@ -273,7 +320,105 @@ function Dashboard() {
           </div>
         </Panel>
       </div>
+      {isReportModalOpen && (
+        <ReportModal
+          month={reportMonth}
+          isGenerating={isGeneratingReport}
+          error={reportError}
+          onChange={setReportMonth}
+          onClose={() => !isGeneratingReport && setIsReportModalOpen(false)}
+          onSubmit={handleGenerateReport}
+        />
+      )}
     </main>
+  );
+}
+
+function ReportModal({
+  month,
+  isGenerating,
+  error,
+  onChange,
+  onClose,
+  onSubmit,
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-night-sky-500/50 p-4"
+      role="presentation"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <section
+        className="w-full max-w-md rounded-2xl border border-night-sky-100/20 bg-white p-6 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="financial-report-title"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">
+              Finance
+            </p>
+            <h2
+              id="financial-report-title"
+              className="mt-2 text-2xl font-extrabold text-night-sky-500"
+            >
+              Generate report
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isGenerating}
+            className="inline-flex size-9 items-center justify-center rounded-lg text-night-sky-300 hover:bg-night-sky-100/20 hover:text-night-sky-500 disabled:opacity-50"
+            aria-label="Close financial report dialog"
+          >
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="mt-6 space-y-5">
+          <label className="flex flex-col gap-2 text-xs font-bold text-night-sky-300">
+            Reporting month
+            <input
+              type="month"
+              value={month}
+              max={currentMonthValue()}
+              onChange={(event) => onChange(event.target.value)}
+              required
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-night-sky-500 outline-none focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-100"
+            />
+          </label>
+
+          {error && (
+            <p
+              className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isGenerating}
+              className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-night-sky-400 hover:bg-slate-50 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isGenerating}
+              className="rounded-xl bg-night-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-night-sky-400 disabled:cursor-wait disabled:opacity-60"
+            >
+              {isGenerating ? "Generating..." : "Generate PDF"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }
 
