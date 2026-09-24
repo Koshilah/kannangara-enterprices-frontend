@@ -10,6 +10,7 @@ import SupplierFormModal from "../../components/admin/suppliers/SupplierFormModa
 import SupplierSearchBar from "../../components/admin/suppliers/SupplierSearchBar";
 import SupplierSummary from "../../components/admin/suppliers/SupplierSummary";
 import SupplierTable from "../../components/admin/suppliers/SupplierTable";
+import { downloadSupplierReport } from "../../utility/supplierReport";
 
 function Supplier() {
   const [suppliers, setSuppliers] = useState([]);
@@ -22,6 +23,7 @@ function Supplier() {
   const [busyID, setBusyID] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
 
   const visibleSuppliers = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -140,9 +142,26 @@ function Supplier() {
     }
   }
 
+  async function handleDownloadReport() {
+    if (suppliers.length === 0) return;
+    setIsDownloadingReport(true);
+    setError("");
+
+    try {
+      await downloadSupplierReport(suppliers);
+      setNotice("Supplier directory report downloaded successfully.");
+    } catch (downloadError) {
+      console.error("Supplier report failed", downloadError);
+      setError("Unable to generate supplier report. Please try again.");
+    } finally {
+      setIsDownloadingReport(false);
+    }
+  }
+
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
+        {/* ── Page Header ── */}
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
@@ -151,12 +170,71 @@ function Supplier() {
             </h1>
             <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
           </div>
-          <SupplierSummary
+          {/* <SupplierSummary
             count={suppliers.length}
             isFiltered={Boolean(searchTerm.trim())}
-          />
+          /> */}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <SupplierSummary
+              count={suppliers.length}
+              isFiltered={Boolean(searchTerm.trim())}
+            />
+
+            {/* Download Report button */}
+            <button
+              type="button"
+              onClick={handleDownloadReport}
+              disabled={isLoading || isDownloadingReport || suppliers.length === 0}
+              className="flex items-center gap-2 rounded-xl bg-night-sky-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-night-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isDownloadingReport ? (
+                <>
+                  <svg
+                    className="size-4 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="size-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Download Report
+                </>
+              )}
+            </button>
+          </div>
         </header>
 
+        {/* ── Alerts ── */}
         {(error || notice) && (
           <div
             className="rounded-xl border border-night-sky-200/30 bg-night-sky-100/10 px-4 py-3 text-sm text-night-sky-400"
@@ -166,6 +244,7 @@ function Supplier() {
           </div>
         )}
 
+        {/* ── Supplier Directory Section ── */}
         <section className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 p-5 md:p-6">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
             <div>
@@ -204,6 +283,7 @@ function Supplier() {
           />
         </section>
       </div>
+
       {modalMode && (
         <SupplierFormModal
           key={`${modalMode}-${selectedSupplier?._id || "new"}`}
