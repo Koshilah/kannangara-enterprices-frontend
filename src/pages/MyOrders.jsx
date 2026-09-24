@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getMyOrders, cancelOrder } from "../api/order";
 import { downloadReceipt } from "../utility/receipt";
+import { downloadOrderHistoryReport } from "../utility/orderHistoryReport";
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 
@@ -173,19 +174,19 @@ function OrderCard({
           </span>
           <button
             type="button"
+            onClick={() => onDownload(order)}
+            disabled={isDownloading}
+            className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-wait disabled:opacity-50"
+          >
+            {isDownloading ? "Preparing..." : "Receipt"}
+          </button>
+          <button
+            type="button"
             onClick={() => setExpanded((v) => !v)}
             className="flex items-center gap-1.5 rounded-xl border border-night-sky-100/30 px-3.5 py-1.5 text-xs font-bold text-night-sky-400 transition hover:bg-night-sky-100/10"
             aria-expanded={expanded}
           >
             {expanded ? "Hide" : "Details"}
-            <button
-              type="button"
-              onClick={() => onDownload(order)}
-              disabled={isDownloading}
-              className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-wait disabled:opacity-50"
-            >
-              {isDownloading ? "Preparing..." : "Receipt"}
-            </button>
             <svg
               className={`size-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
               fill="none"
@@ -411,6 +412,7 @@ function MyOrders() {
   const [notice, setNotice] = useState("");
   const [cancellingID, setCancellingID] = useState(null);
   const [downloadingReceiptID, setDownloadingReceiptID] = useState(null);
+  const [isDownloadingHistory, setIsDownloadingHistory] = useState(false);
 
   // Filter state
   const [filter, setFilter] = useState("all");
@@ -486,6 +488,33 @@ function MyOrders() {
     }
   }
 
+  async function handleDownloadOrderHistory() {
+    if (!orders || orders.length === 0) return;
+
+    setIsDownloadingHistory(true);
+    setError("");
+
+    try {
+      let user = null;
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          user = JSON.parse(storedUser);
+        }
+      } catch (parseErr) {
+        console.error("Failed to parse user from localStorage", parseErr);
+      }
+
+      await downloadOrderHistoryReport({ orders, user });
+      setNotice("Order history report downloaded successfully.");
+    } catch (downloadError) {
+      console.error("Order history download failed", downloadError);
+      setError("Unable to generate order history report. Please try again.");
+    } finally {
+      setIsDownloadingHistory(false);
+    }
+  }
+
   const FILTER_TABS = [
     { key: "all", label: "All Orders" },
     { key: "pending", label: "Pending" },
@@ -516,23 +545,75 @@ function MyOrders() {
                 Track your purchases, payment status, and delivery progress
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5">
-              <svg
-                className="size-5 text-night-sky-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5">
+                <svg
+                  className="size-5 text-night-sky-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+                <span className="text-sm font-bold text-night-sky-500">
+                  {orders.length} order{orders.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDownloadOrderHistory}
+                disabled={isDownloadingHistory || isLoading || orders.length === 0}
+                className="flex items-center gap-2 rounded-xl bg-night-sky-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-night-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-              <span className="text-sm font-bold text-night-sky-500">
-                {orders.length} order{orders.length !== 1 ? "s" : ""}
-              </span>
+                {isDownloadingHistory ? (
+                  <>
+                    <svg
+                      className="size-4 animate-spin text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      />
+                    </svg>
+                    <span>Generating Report...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="size-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span>Download My Order History</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </header>
