@@ -5,6 +5,8 @@ import {
   updateDeliveryDueDate,
   updateDeliveryStatus,
 } from "../../api/delivery";
+import DeliveryReportModal from "../../components/DeliveryReportModal";
+import { downloadDeliveryReport } from "../../utility/deliveryReport";
 
 const statuses = [
   { value: "pending", label: "Pending" },
@@ -30,6 +32,8 @@ function Delivery() {
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -142,32 +146,94 @@ function Delivery() {
     }
   }
 
+  async function handleDownloadReport({
+    statusFilter: sf,
+    fromDate,
+    toDate,
+    filteredDeliveries: toDownload,
+  }) {
+    setIsDownloadingReport(true);
+    setError("");
+
+    try {
+      await downloadDeliveryReport({
+        deliveries: toDownload,
+        filters: { statusFilter: sf, fromDate, toDate },
+      });
+      setShowReportModal(false);
+      setNotice("Delivery report downloaded successfully.");
+    } catch (downloadError) {
+      console.error("Delivery report failed", downloadError);
+      setError("Unable to generate delivery report. Please try again.");
+    } finally {
+      setIsDownloadingReport(false);
+    }
+  }
+
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
+        {/* ── Page Header ── */}
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
               Deliveries
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-            </p>
+            <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
           </div>
-          <div className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 px-5 py-4 sm:text-right">
-            <p className="text-xs font-semibold uppercase tracking-wider text-night-sky-200">
-              Showing
-            </p>
-            <p className="mt-1 text-2xl font-extrabold text-night-sky-500">
-              {filteredDeliveries.length}
-              <span className="ml-1 text-sm font-semibold text-night-sky-200">
-                of {deliveries.length}
-              </span>
-            </p>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Showing count badge */}
+            <div className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 px-5 py-4 sm:text-right">
+              <p className="text-xs font-semibold uppercase tracking-wider text-night-sky-200">
+                Showing
+              </p>
+              <p className="mt-1 text-2xl font-extrabold text-night-sky-500">
+                {filteredDeliveries.length}
+                <span className="ml-1 text-sm font-semibold text-night-sky-200">
+                  of {deliveries.length}
+                </span>
+              </p>
+            </div>
+
+            {/* Download Report button */}
+            <button
+              type="button"
+              onClick={() => setShowReportModal(true)}
+              disabled={isLoading || deliveries.length === 0}
+              className="flex items-center gap-2 rounded-xl bg-night-sky-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-night-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                className="size-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Download Report
+            </button>
           </div>
         </header>
 
+        {/* ── Report Filter Modal ── */}
+        {showReportModal && (
+          <DeliveryReportModal
+            onClose={() => setShowReportModal(false)}
+            onDownload={handleDownloadReport}
+            totalCount={deliveries.length}
+            deliveries={deliveries}
+            isDownloading={isDownloadingReport}
+          />
+        )}
+
+        {/* ── Alerts ── */}
         {(error || notice) && (
           <div
             className="rounded-xl border border-night-sky-200/30 bg-night-sky-100/10 px-4 py-3 text-sm text-night-sky-400"
@@ -177,6 +243,7 @@ function Delivery() {
           </div>
         )}
 
+        {/* ── Delivery Records Section ── */}
         <section className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 p-5 md:p-6">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
             <div>
@@ -308,7 +375,9 @@ function Delivery() {
                           <button
                             type="button"
                             onClick={() => handleDelete(delivery)}
-                            disabled={delivery.status !== "delivered" || isBusy}
+                            disabled={
+                              delivery.status !== "delivered" || isBusy
+                            }
                             className="inline-flex size-9 items-center justify-center rounded-lg text-night-sky-300 transition hover:bg-night-sky-100/20 hover:text-night-sky-500 disabled:cursor-not-allowed disabled:opacity-30"
                             aria-label={`Delete delivery for order ${orderID}`}
                             title={
