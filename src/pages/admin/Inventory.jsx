@@ -9,6 +9,7 @@ import { getProducts, updateProductStock } from "../../api/product";
 import CategoryModal from "../../components/admin/inventory/CategoryModal";
 import InventorySummary from "../../components/admin/inventory/InventorySummary";
 import ProductTable from "../../components/admin/inventory/ProductTable";
+import { downloadInventoryReport } from "../../utility/inventoryReport";
 
 const PAGE_SIZE = 5;
 
@@ -33,6 +34,7 @@ function Inventory() {
   const [busyID, setBusyID] = useState(null);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -177,20 +179,46 @@ function Inventory() {
     }
   }
 
+  async function handleDownloadReport() {
+    setError("");
+    setNotice("");
+    setIsDownloadingReport(true);
+
+    try {
+      await downloadInventoryReport(products, categoryNames);
+      setNotice("Inventory report downloaded successfully.");
+    } catch (reportError) {
+      console.error("Inventory report download failed", reportError);
+      setError("Unable to download the inventory report.");
+    } finally {
+      setIsDownloadingReport(false);
+    }
+  }
+
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300">
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
               Inventory
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-            </p>
+            <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={handleDownloadReport}
+              disabled={isLoading || isDownloadingReport}
+              className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-4 py-3 text-sm font-bold text-night-sky-400 hover:bg-night-sky-100/20 disabled:cursor-wait disabled:opacity-50"
+            >
+              <i
+                className="fa-solid fa-file-arrow-down mr-2"
+                aria-hidden="true"
+              />
+              {isDownloadingReport ? "Preparing report..." : "Download report"}
+            </button>
             {canCatalog && (
               <>
                 <button
