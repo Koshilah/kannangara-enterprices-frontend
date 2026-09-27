@@ -115,6 +115,7 @@ function SignUp() {
   };
   return (
     <AuthLayout layoutFor={"Sign Up"}>
+      <title>Register | Kannangara Hardwares</title>
       <Form
         title={"Sign Up"}
         formElements={formElements}

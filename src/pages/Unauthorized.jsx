@@ -3,6 +3,7 @@ import { Link } from "react-router";
 function Unauthorized() {
   return (
     <main className="flex w-dvw h-dvh  flex-col items-center justify-center px-6 text-center">
+      <title>Not Found | Kannangara Hardwares</title>
       <h1 className="mt-2 text-3xl font-bold">
         404 Not Found!
       </h1>

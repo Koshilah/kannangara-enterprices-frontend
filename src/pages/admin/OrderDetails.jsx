@@ -37,6 +37,7 @@ function OrderDetails() {
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
+      <title>Orders | Kannangara Hardwares</title>
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header>
           <button

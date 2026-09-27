@@ -199,6 +199,7 @@ function Expenses() {
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-[#f4f6f9] px-5 py-8 text-[#333333] md:px-8">
+      <title>Expenses | Kannangara Hardwares</title>
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>

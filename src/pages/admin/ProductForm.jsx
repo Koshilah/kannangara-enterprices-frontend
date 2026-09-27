@@ -171,6 +171,7 @@ function ProductForm() {
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-[#f4f6f9] px-5 py-8 text-[#333333] md:px-8">
+      <title>Add Product | Kannangara Hardwares</title>
       <div className="mx-auto max-w-4xl">
         <button
           type="button"

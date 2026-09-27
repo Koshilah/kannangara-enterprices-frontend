@@ -172,6 +172,7 @@ function Delivery() {
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
+      <title>Delivery | Kannangara Hardwares</title>
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         {/* ── Page Header ── */}
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">

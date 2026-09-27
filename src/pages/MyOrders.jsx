@@ -533,6 +533,7 @@ function MyOrders() {
 
   return (
     <div className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-night-sky-500 antialiased">
+      <title>My Orders | Kannangara Hardwares</title>
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-12">
         {/* ── Page header ── */}
         <header className="mb-8 rounded-2xl border border-night-sky-100/20 bg-white p-6 shadow-sm sm:p-8">

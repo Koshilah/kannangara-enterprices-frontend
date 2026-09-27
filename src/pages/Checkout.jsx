@@ -272,6 +272,7 @@ function Checkout({ cart, setCart, products = [] }) {
     const { order } = orderSuccessData;
     return (
       <main className="mx-auto max-w-3xl px-6 py-12">
+        <title>Checkout | Kannangara Hardwares</title>
         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
             <i className="fa-solid fa-check text-2xl" aria-hidden="true" />
@@ -394,6 +395,7 @@ function Checkout({ cart, setCart, products = [] }) {
   if (rows.length === 0) {
     return (
       <main className="mx-auto max-w-4xl px-6 py-12 text-center">
+        <title>Checkout | Kannangara Hardwares</title>
         <div className="rounded-2xl border border-gray-200 bg-white p-10 shadow-sm">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-gray-100 text-night-sky-200">
             <i className="fa-solid fa-cart-shopping text-2xl" />
@@ -420,6 +422,7 @@ function Checkout({ cart, setCart, products = [] }) {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <title>Checkout | Kannangara Hardwares</title>
       {/* Header */}
       <div className="mb-8">
         <Link

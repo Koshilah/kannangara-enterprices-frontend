@@ -69,6 +69,7 @@ function Cart({ cart, setCart, products = [] }) {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
+      <title>Cart | Kannangara Hardwares</title>
       <h1 className="mb-6 text-center text-2xl font-semibold text-slate-900">
         Shopping Cart
       </h1>
