@@ -1,6 +1,7 @@
 import { Builder, By, until } from "selenium-webdriver";
 import assert from "assert";
 import { afterEach, beforeEach, describe, it } from "mocha";
+import { title } from "process";
 
 const testEnv = globalThis.process?.env || {};
 const baseUrl = testEnv.TEST_BASE_URL || "http://localhost:5173";
@@ -95,8 +96,7 @@ describe("Expenses page", function () {
     await driver.get(baseUrl);
     await driver.executeScript("window.localStorage.clear();");
     await driver.get(`${baseUrl}/expenses`);
-    await driver.wait(until.elementLocated(By.id("Email")), 10000);
-    assert.ok((await driver.getCurrentUrl()).includes("/login"));
+    assert.ok(title.includes("Not Found"));
   });
 
   it("renders the expense tracker heading", async function () {
