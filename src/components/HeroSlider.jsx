@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
+import { getHeroSlides } from "../api/heroSlide";
 
-const slides = [
+const fallbackSlides = [
   {
     eyebrow: "Build with confidence",
     title: "The right tools for every project.",
@@ -39,8 +41,47 @@ const slides = [
   },
 ];
 
+const accentThemes = {
+  navy: "from-[#172033]/95 via-[#172033]/75 to-[#172033]/15",
+  slate: "from-[#28364d]/95 via-[#28364d]/72 to-[#28364d]/10",
+  charcoal: "from-[#1c2738]/95 via-[#1c2738]/72 to-[#1c2738]/10",
+};
+
+function normalizeSlide(slide) {
+  return {
+    eyebrow: slide.eyebrow || "Featured hardware",
+    title: slide.title,
+    description: slide.description || "",
+    action: slide.actionLabel || "Explore now",
+    href: slide.href || "/catalog",
+    image: slide.imageURL,
+    alt: slide.alt || slide.title,
+    accent: accentThemes[slide.accentTheme] || accentThemes.navy,
+  };
+}
+
 function HeroSlider() {
+  const [slides, setSlides] = useState(fallbackSlides);
   const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    getHeroSlides()
+      .then((loadedSlides) => {
+        if (mounted && loadedSlides.length > 0) {
+          setSlides(loadedSlides.map(normalizeSlide));
+          setActiveSlide(0);
+        }
+      })
+      .catch((error) => {
+        console.error("Unable to load hero slides", error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const intervalID = window.setInterval(() => {
@@ -48,7 +89,7 @@ function HeroSlider() {
     }, 6000);
 
     return () => window.clearInterval(intervalID);
-  }, []);
+  }, [slides.length]);
 
   const showSlide = (slideIndex) => setActiveSlide(slideIndex);
   const showPreviousSlide = () =>
@@ -91,14 +132,25 @@ function HeroSlider() {
                 <p className="mt-5 max-w-md text-base leading-7 text-slate-200 sm:text-lg">
                   {slide.description}
                 </p>
-                <a
-                  href={slide.href}
-                  tabIndex={activeSlide === slideIndex ? 0 : -1}
-                  className="mt-8 inline-flex items-center gap-3 rounded-lg bg-white px-5 py-3 text-sm font-bold text-night-sky-500 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-white/40"
-                >
-                  {slide.action}
-                  <span aria-hidden="true">-&gt;</span>
-                </a>
+                {slide.href.startsWith("http") ? (
+                  <a
+                    href={slide.href}
+                    tabIndex={activeSlide === slideIndex ? 0 : -1}
+                    className="mt-8 inline-flex items-center gap-3 rounded-lg bg-white px-5 py-3 text-sm font-bold text-night-sky-500 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-white/40"
+                  >
+                    {slide.action}
+                    <span aria-hidden="true">-&gt;</span>
+                  </a>
+                ) : (
+                  <Link
+                    to={slide.href}
+                    tabIndex={activeSlide === slideIndex ? 0 : -1}
+                    className="mt-8 inline-flex items-center gap-3 rounded-lg bg-white px-5 py-3 text-sm font-bold text-night-sky-500 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-white/40"
+                  >
+                    {slide.action}
+                    <span aria-hidden="true">-&gt;</span>
+                  </Link>
+                )}
               </div>
             </div>
           </article>

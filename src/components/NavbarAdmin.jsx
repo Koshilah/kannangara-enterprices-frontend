@@ -82,6 +82,11 @@ function NavbarAdmin({ user }) {
                   Expenses
                 </NavLink>
               </li>
+              <li>
+                <NavLink to="/hero-slides" className={navLinkClass}>
+                  Hero Slides
+                </NavLink>
+              </li>
               {isManager && (
                 <li>
                   <NavLink to="/employees" className={navLinkClass}>

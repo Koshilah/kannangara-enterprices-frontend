@@ -24,6 +24,7 @@ import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
 import ContactUs from "./pages/ContactUs";
 import Messages from "./pages/admin/Messages";
+import HeroSlides from "./pages/admin/HeroSlides";
 import { getProducts } from "./api/product";
 import { getCart } from "./api/cart";
 import { useEffect, useState } from "react";
@@ -164,6 +165,7 @@ function App() {
                     <Route path="/delivery" element={<Delivery />} />
                     <Route path="/suppliers" element={<Supplier />} />
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/hero-slides" element={<HeroSlides />} />
                     <Route path="/profile" element={<AdminProfile />} />
                   </>
                 )}
