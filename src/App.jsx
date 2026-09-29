@@ -4,6 +4,7 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
 import Deals from "./pages/Deals";
+import Catalog from "./pages/Catalog";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
@@ -121,6 +122,10 @@ function App() {
                   />
                 }
               />
+              <Route
+                path="/catalog"
+                element={<Catalog cart={cart} setCart={setCart} />}
+              />
             </>
           )}
           {/* ProtectedRoutes */}
@@ -163,11 +168,13 @@ function App() {
                   <Route path="/employees" element={<Employee />} />
                 )}
                 {!isManager && (
-                  <><Route
-                    path="/"
-                    element={<Navigate to="/inventory" replace />}
-                  />
-                  <Route path="/profile" element={<AdminProfile />} /></>
+                  <>
+                    <Route
+                      path="/"
+                      element={<Navigate to="/inventory" replace />}
+                    />
+                    <Route path="/profile" element={<AdminProfile />} />
+                  </>
                 )}
               </>
             ) : (
@@ -194,6 +201,10 @@ function App() {
                       setCart={setCart}
                     />
                   }
+                />
+                <Route
+                  path="/catalog"
+                  element={<Catalog cart={cart} setCart={setCart} />}
                 />
               </>
             )}

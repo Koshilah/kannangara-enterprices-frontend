@@ -10,6 +10,11 @@ export async function getProducts() {
   return response.data.data || [];
 }
 
+export async function getProductsByCategory(categoryID) {
+  const response = await publicApi.get(`/product/category/${categoryID}`);
+  return response.data.data || [];
+}
+
 export async function createProduct(payload) {
   const response = await api.post("/product", payload);
   return response.data.data;
