@@ -110,7 +110,8 @@ function ProductForm() {
       nextErrors.title = "Product name must be between 5 and 40 characters.";
     }
     if (description.length < 10 || description.length > 500) {
-      nextErrors.description = "Description must be between 10 and 500 characters.";
+      nextErrors.description =
+        "Description must be between 10 and 500 characters.";
     }
     if (!Number.isFinite(price) || price < 0) {
       nextErrors.price = "Enter a valid non-negative price.";
@@ -118,8 +119,13 @@ function ProductForm() {
     if (!Number.isFinite(discountPrice) || discountPrice < 0) {
       nextErrors.discountPrice = "Enter a valid non-negative discount price.";
     }
-    if (Number.isFinite(price) && Number.isFinite(discountPrice) && discountPrice > price) {
-      nextErrors.discountPrice = "Discount price cannot exceed the regular price.";
+    if (
+      Number.isFinite(price) &&
+      Number.isFinite(discountPrice) &&
+      discountPrice > price
+    ) {
+      nextErrors.discountPrice =
+        "Discount price cannot exceed the regular price.";
     }
     if (!Number.isInteger(totalStock) || totalStock < 0) {
       nextErrors.totalStock = "Stock must be a non-negative whole number.";
@@ -295,7 +301,11 @@ function ProductForm() {
                 placeholder="Describe this product"
                 className="resize-y rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-[#1f2937] outline-none focus:border-emerald-400"
               />
-              {fieldErrors.description && <span className="text-xs font-medium text-red-600">{fieldErrors.description}</span>}
+              {fieldErrors.description && (
+                <span className="text-xs font-medium text-red-600">
+                  {fieldErrors.description}
+                </span>
+              )}
             </label>
             <div className="grid gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-xs font-bold text-[#64748b]">
@@ -324,14 +334,21 @@ function ProductForm() {
                   onChange={(event) => {
                     const file = event.target.files?.[0] || null;
                     setImageFile(file);
-                    setFieldErrors((current) => ({ ...current, imageFile: "" }));
+                    setFieldErrors((current) => ({
+                      ...current,
+                      imageFile: "",
+                    }));
                   }}
                   className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-[#64748b]"
                 />
                 <span className="text-[11px] font-normal text-[#94a3b8]">
                   Optional. Uploaded images are stored in Cloudinary.
                 </span>
-                {fieldErrors.imageFile && <span className="text-xs font-medium text-red-600">{fieldErrors.imageFile}</span>}
+                {fieldErrors.imageFile && (
+                  <span className="text-xs font-medium text-red-600">
+                    {fieldErrors.imageFile}
+                  </span>
+                )}
               </label>
             </div>
             <label className="flex flex-col gap-2 text-xs font-bold text-[#64748b]">
@@ -343,7 +360,11 @@ function ProductForm() {
                 placeholder="Optional image URL"
                 className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-[#1f2937] outline-none focus:border-emerald-400"
               />
-              {fieldErrors.imageURL && <span className="text-xs font-medium text-red-600">{fieldErrors.imageURL}</span>}
+              {fieldErrors.imageURL && (
+                <span className="text-xs font-medium text-red-600">
+                  {fieldErrors.imageURL}
+                </span>
+              )}
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3 text-sm font-bold text-[#374151]">
@@ -420,7 +441,9 @@ function Field({ label, name, value, onChange, error, ...props }) {
         className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-[#1f2937] outline-none focus:border-emerald-400"
         {...props}
       />
-      {error && <span className="text-xs font-medium text-red-600">{error}</span>}
+      {error && (
+        <span className="text-xs font-medium text-red-600">{error}</span>
+      )}
     </label>
   );
 }
