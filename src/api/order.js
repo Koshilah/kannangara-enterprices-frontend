@@ -34,3 +34,10 @@ export async function getMyOrders() {
   const response = await api.get("/order/my-orders");
   return response.data?.data || [];
 }
+
+export async function updatePaymentStatus(orderID, paymentStatus) {
+  const response = await api.patch(`/order/${orderID}/payment`, {
+    paymentStatus,
+  });
+  return response.data.data;
+}

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router";
 import { getAddresses, addAddress } from "../api/address";
 import { createOrder } from "../api/order";
 import { downloadReceipt } from "../utility/receipt";
+import { CARD_PAYMENTS_ENABLED } from "../config/payment";
 
 function formatCurrency(amount) {
   return Number(amount || 0).toLocaleString("en-LK", {
@@ -217,7 +218,7 @@ function Checkout({ cart, setCart, products = [] }) {
     }
 
     const resolvedPaymentMethod =
-      paymentMethod === "cash"
+      !CARD_PAYMENTS_ENABLED || paymentMethod === "cash"
         ? orderType === "delivery"
           ? "Cash on Delivery"
           : "Cash on Pickup"
@@ -791,43 +792,44 @@ function Checkout({ cart, setCart, products = [] }) {
                   <p className="mt-1 text-xs text-slate-600">
                     {orderType === "delivery"
                       ? "Pay with cash at your doorstep when your items arrive."
-                      : "Pay with cash or card at the store pickup counter."}
+                      : "Pay with cash at the store pickup counter."}
                   </p>
                 </div>
               </label>
 
-              {/* Card Option */}
-              <label
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
-                  paymentMethod === "card"
-                    ? "border-night-sky-500 bg-night-sky-500/5 ring-1 ring-night-sky-500"
-                    : "border-gray-200 bg-white hover:border-gray-300"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="card"
-                  checked={paymentMethod === "card"}
-                  onChange={() => setPaymentMethod("card")}
-                  className="mt-1 size-4 accent-night-sky-500"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-night-sky-500">
-                      Visa / MasterCard
-                    </span>
-                    <div className="flex items-center gap-1.5 text-base text-night-sky-300">
-                      <i className="fa-brands fa-cc-visa" />
-                      <i className="fa-brands fa-cc-mastercard" />
+              {CARD_PAYMENTS_ENABLED && (
+                <label
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                    paymentMethod === "card"
+                      ? "border-night-sky-500 bg-night-sky-500/5 ring-1 ring-night-sky-500"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="card"
+                    checked={paymentMethod === "card"}
+                    onChange={() => setPaymentMethod("card")}
+                    className="mt-1 size-4 accent-night-sky-500"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-night-sky-500">
+                        Visa / MasterCard
+                      </span>
+                      <div className="flex items-center gap-1.5 text-base text-night-sky-300">
+                        <i className="fa-brands fa-cc-visa" />
+                        <i className="fa-brands fa-cc-mastercard" />
+                      </div>
                     </div>
+                    <p className="mt-1 text-xs text-slate-600">
+                      Direct instant order placement. (Payment gateway
+                      integration in progress).
+                    </p>
                   </div>
-                  <p className="mt-1 text-xs text-slate-600">
-                    Direct instant order placement. (Payment gateway integration
-                    in progress).
-                  </p>
-                </div>
-              </label>
+                </label>
+              )}
             </div>
           </section>
         </div>
@@ -916,8 +918,10 @@ function Checkout({ cart, setCart, products = [] }) {
                     <i className="fa-solid fa-spinner fa-spin" /> Processing
                     Order...
                   </span>
-                ) : (
+                ) : CARD_PAYMENTS_ENABLED && paymentMethod === "card" ? (
                   "Proceed to Payment"
+                ) : (
+                  "Place Order"
                 )}
               </button>
             </div>

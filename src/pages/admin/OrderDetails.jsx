@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { getOrder } from "../../api/order";
+import { getOrder, updatePaymentStatus } from "../../api/order";
 import OrderDetailsPanel from "../../components/admin/orders/OrderDetailsPanel";
 
 function OrderDetails() {
@@ -9,6 +9,7 @@ function OrderDetails() {
   const [details, setDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -34,6 +35,26 @@ function OrderDetails() {
       isMounted = false;
     };
   }, [orderID]);
+
+  async function handlePaymentStatusChange(paymentStatus) {
+    setIsUpdatingPayment(true);
+    setError("");
+
+    try {
+      const updatedOrder = await updatePaymentStatus(orderID, paymentStatus);
+      setDetails((currentDetails) => ({
+        ...currentDetails,
+        order: updatedOrder,
+      }));
+    } catch (updateError) {
+      setError(
+        updateError.response?.data?.message ||
+          "Unable to update payment status.",
+      );
+    } finally {
+      setIsUpdatingPayment(false);
+    }
+  }
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
@@ -77,6 +98,8 @@ function OrderDetails() {
           <OrderDetailsPanel
             order={details.order}
             delivery={details.delivery}
+            isUpdatingPayment={isUpdatingPayment}
+            onPaymentStatusChange={handlePaymentStatusChange}
           />
         )}
       </div>
