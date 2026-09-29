@@ -32,6 +32,7 @@ function ProductForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     let mounted = true;
@@ -94,27 +95,62 @@ function ProductForm() {
       [name]: type === "checkbox" ? checked : value,
     }));
     setError("");
+    setFieldErrors((current) => ({ ...current, [name]: "" }));
+  }
+
+  function validateForm() {
+    const nextErrors = {};
+    const title = form.title.trim();
+    const description = form.description.trim();
+    const price = Number(form.price);
+    const discountPrice = Number(form.discountPrice || 0);
+    const totalStock = Number(form.totalStock);
+
+    if (title.length < 5 || title.length > 40) {
+      nextErrors.title = "Product name must be between 5 and 40 characters.";
+    }
+    if (description.length < 10 || description.length > 500) {
+      nextErrors.description = "Description must be between 10 and 500 characters.";
+    }
+    if (!Number.isFinite(price) || price < 0) {
+      nextErrors.price = "Enter a valid non-negative price.";
+    }
+    if (!Number.isFinite(discountPrice) || discountPrice < 0) {
+      nextErrors.discountPrice = "Enter a valid non-negative discount price.";
+    }
+    if (Number.isFinite(price) && Number.isFinite(discountPrice) && discountPrice > price) {
+      nextErrors.discountPrice = "Discount price cannot exceed the regular price.";
+    }
+    if (!Number.isInteger(totalStock) || totalStock < 0) {
+      nextErrors.totalStock = "Stock must be a non-negative whole number.";
+    }
+    if (form.imageURL.trim()) {
+      try {
+        new URL(form.imageURL.trim());
+      } catch {
+        nextErrors.imageURL = "Enter a valid image URL.";
+      }
+    }
+    if (imageFile) {
+      if (!imageFile.type.startsWith("image/")) {
+        nextErrors.imageFile = "Select a valid image file.";
+      } else if (imageFile.size > 5 * 1024 * 1024) {
+        nextErrors.imageFile = "Image must be 5 MB or smaller.";
+      }
+    }
+
+    setFieldErrors(nextErrors);
+    return nextErrors;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+    const validationErrors = validateForm();
     const totalStock = Number(form.totalStock);
     const price = Number(form.price);
     const discountPrice = Number(form.discountPrice || 0);
-    if (
-      !form.title.trim() ||
-      !form.description.trim() ||
-      !Number.isFinite(price) ||
-      price < 0 ||
-      !Number.isInteger(totalStock) ||
-      totalStock < 0
-    ) {
-      setError(
-        "Enter a valid title, description, price, and non-negative whole-number stock quantity.",
-      );
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) return;
     setIsSaving(true);
     try {
       let imageURL = form.imageURL.trim();
@@ -210,6 +246,7 @@ function ProductForm() {
                 onChange={updateField}
                 required
                 placeholder="Enter product name"
+                error={fieldErrors.title}
               />
               <Field
                 label="Price"
@@ -221,6 +258,7 @@ function ProductForm() {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
+                error={fieldErrors.price}
               />
               <Field
                 label="Discount price"
@@ -231,6 +269,7 @@ function ProductForm() {
                 min="0"
                 step="0.01"
                 placeholder="0.00"
+                error={fieldErrors.discountPrice}
               />
               <Field
                 label="Total stock"
@@ -242,6 +281,7 @@ function ProductForm() {
                 min="0"
                 step="1"
                 placeholder="0"
+                error={fieldErrors.totalStock}
               />
             </div>
             <label className="flex flex-col gap-2 text-xs font-bold text-[#64748b]">
@@ -255,6 +295,7 @@ function ProductForm() {
                 placeholder="Describe this product"
                 className="resize-y rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-[#1f2937] outline-none focus:border-emerald-400"
               />
+              {fieldErrors.description && <span className="text-xs font-medium text-red-600">{fieldErrors.description}</span>}
             </label>
             <div className="grid gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-xs font-bold text-[#64748b]">
@@ -280,14 +321,17 @@ function ProductForm() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(event) =>
-                    setImageFile(event.target.files?.[0] || null)
-                  }
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] || null;
+                    setImageFile(file);
+                    setFieldErrors((current) => ({ ...current, imageFile: "" }));
+                  }}
                   className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-[#64748b]"
                 />
                 <span className="text-[11px] font-normal text-[#94a3b8]">
                   Optional. Uploaded images are stored in Cloudinary.
                 </span>
+                {fieldErrors.imageFile && <span className="text-xs font-medium text-red-600">{fieldErrors.imageFile}</span>}
               </label>
             </div>
             <label className="flex flex-col gap-2 text-xs font-bold text-[#64748b]">
@@ -299,6 +343,7 @@ function ProductForm() {
                 placeholder="Optional image URL"
                 className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-[#1f2937] outline-none focus:border-emerald-400"
               />
+              {fieldErrors.imageURL && <span className="text-xs font-medium text-red-600">{fieldErrors.imageURL}</span>}
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3 text-sm font-bold text-[#374151]">
@@ -364,7 +409,7 @@ function ProductForm() {
   );
 }
 
-function Field({ label, name, value, onChange, ...props }) {
+function Field({ label, name, value, onChange, error, ...props }) {
   return (
     <label className="flex flex-col gap-2 text-xs font-bold text-[#64748b]">
       {label}
@@ -375,6 +420,7 @@ function Field({ label, name, value, onChange, ...props }) {
         className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-[#1f2937] outline-none focus:border-emerald-400"
         {...props}
       />
+      {error && <span className="text-xs font-medium text-red-600">{error}</span>}
     </label>
   );
 }

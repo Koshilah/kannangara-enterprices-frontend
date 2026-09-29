@@ -33,8 +33,10 @@ function Navbar({ isLoggedIn, user, cart }) {
         <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
           About Us
         </li>
-        <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-          Contact Us
+        <li>
+          <NavLink to="/contact" className={navLinkClass}>
+            Contact Us
+          </NavLink>
         </li>
       </ul>
       <div className="flex gap-5 items-center">
@@ -71,9 +73,11 @@ function Navbar({ isLoggedIn, user, cart }) {
                       Cart
                     </li>
                   </Link>
-                  <Link to={'/my-orders'}><li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
-                    Order History
-                  </li></Link>
+                  <Link to={"/my-orders"}>
+                    <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
+                      Order History
+                    </li>
+                  </Link>
                   <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
                     Recent Transaction
                   </li>

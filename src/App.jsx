@@ -22,6 +22,7 @@ import AdminProfile from "./pages/admin/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
+import ContactUs from "./pages/ContactUs";
 import { getProducts } from "./api/product";
 import { getCart } from "./api/cart";
 import { useEffect, useState } from "react";
@@ -210,6 +211,7 @@ function App() {
             )}
           </Route>
 
+          <Route path="/contact" element={<ContactUs />} />
           <Route path="/about" element={null} />
           <Route path="*" element={<Unauthorized />} />
         </Routes>

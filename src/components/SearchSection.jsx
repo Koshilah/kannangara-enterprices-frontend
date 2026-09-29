@@ -127,7 +127,7 @@ function SearchSection() {
 
   return (
     <section
-      className="relative z-30 w-full bg-[#202020]"
+      className="sticky top-16 z-40 w-full bg-[#202020]"
       aria-label="Product search"
     >
       <div className="flex flex-col gap-5 bg-white px-5 py-4 sm:px-7 lg:flex-row lg:items-center lg:justify-between lg:px-8">
