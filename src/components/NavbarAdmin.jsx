@@ -1,15 +1,36 @@
-import { useNavigate, NavLink, Link } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate, NavLink, Link, useLocation } from "react-router";
 import { logout } from "../api/auth";
+import { getUnreadMessageCount } from "../api/message";
 
 function NavbarAdmin({ user }) {
   const navigate = useNavigate();
   const isManager = Boolean(user?.isMannager);
   const isAdmin = Boolean(user?.isAdmin);
   const canManageAdminPanel = isManager || isAdmin;
+  const location = useLocation();
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const navLinkClass = ({ isActive }) =>
     `inline-block cursor-pointer hover:text-night-sky-500 hover:font-bold ${
       isActive ? "border-b-2 border-night-sky-500 pb-1 text-night-sky-500" : ""
     }`;
+
+  useEffect(() => {
+    if (!canManageAdminPanel) return;
+
+    let isMounted = true;
+    getUnreadMessageCount()
+      .then((count) => {
+        if (isMounted) setUnreadMessageCount(count);
+      })
+      .catch(() => {
+        if (isMounted) setUnreadMessageCount(0);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [canManageAdminPanel, location.pathname]);
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-white px-5 py-1 shadow-sm">
@@ -68,6 +89,21 @@ function NavbarAdmin({ user }) {
                   </NavLink>
                 </li>
               )}
+              {canManageAdminPanel && (
+                <li>
+                  <NavLink
+                    to="/messages"
+                    className={`${navLinkClass({ isActive: location.pathname === "/messages" })} inline-flex items-center gap-2`}
+                  >
+                    Messages
+                    {unreadMessageCount > 0 && (
+                      <span className="flex size-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+                        {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                      </span>
+                    )}
+                  </NavLink>
+                </li>
+              )}
             </>
           )}
         </ul>
@@ -86,11 +122,9 @@ function NavbarAdmin({ user }) {
               <p className="text-xl font-semibold">Hi, {user?.name}</p>
               <hr className="my-3 border-neutral-400" />
               <ul className="space-y-2 text-md">
-                
-                  <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
-                    <Link to="/profile">My Profile</Link>
-                  </li>
-                
+                <li className="cursor-pointer hover:text-night-sky-500 hover:font-semibold">
+                  <Link to="/profile">My Profile</Link>
+                </li>
               </ul>
               <hr className="my-4 border-neutral-400" />
               <button

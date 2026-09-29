@@ -1,7 +1,46 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import Footer from "../components/Footer";
+import { sendMessage } from "../api/message";
 
 function ContactUs() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setForm((currentForm) => ({ ...currentForm, [name]: value }));
+    setError("");
+    setNotice("");
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError("");
+    setNotice("");
+    setIsSending(true);
+
+    try {
+      await sendMessage(form);
+      setForm({ name: "", email: "", subject: "", message: "" });
+      setNotice("Your message has been sent successfully.");
+    } catch (sendError) {
+      setError(
+        sendError.response?.data?.message ||
+          "Unable to send your message. Please try again.",
+      );
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   return (
     <main className="w-full bg-slate-50">
       <title>Contact Us | Kannangara Hardwares</title>
@@ -64,7 +103,10 @@ function ContactUs() {
           </Link>
         </div>
 
-        <form className="border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <form
+          onSubmit={handleSubmit}
+          className="border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+        >
           <h2 className="text-2xl font-bold text-night-sky-500">
             Send us a message
           </h2>
@@ -78,6 +120,9 @@ function ContactUs() {
               <input
                 type="text"
                 name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
                 placeholder="Your name"
                 className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-night-sky-500 focus:ring-2 focus:ring-night-sky-500/20"
               />
@@ -87,6 +132,9 @@ function ContactUs() {
               <input
                 type="email"
                 name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
                 placeholder="you@example.com"
                 className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-night-sky-500 focus:ring-2 focus:ring-night-sky-500/20"
               />
@@ -98,6 +146,9 @@ function ContactUs() {
             <input
               type="text"
               name="subject"
+              value={form.subject}
+              onChange={handleChange}
+              required
               placeholder="How can we help?"
               className="mt-2 w-full rounded-md border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-night-sky-500 focus:ring-2 focus:ring-night-sky-500/20"
             />
@@ -107,17 +158,30 @@ function ContactUs() {
             Message
             <textarea
               name="message"
+              value={form.message}
+              onChange={handleChange}
+              required
               rows="6"
               placeholder="Write your message here..."
               className="mt-2 w-full resize-y rounded-md border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-night-sky-500 focus:ring-2 focus:ring-night-sky-500/20"
             />
           </label>
 
+          {(error || notice) && (
+            <p
+              className={`mt-5 text-sm ${error ? "text-red-700" : "text-green-700"}`}
+              role="status"
+            >
+              {error || notice}
+            </p>
+          )}
+
           <button
-            type="button"
-            className="mt-6 w-full rounded-md bg-night-sky-500 px-5 py-3 font-bold text-white transition hover:bg-night-sky-300 focus:outline-none focus:ring-4 focus:ring-night-sky-500/20 sm:w-auto"
+            type="submit"
+            disabled={isSending}
+            className="mt-6 w-full rounded-md bg-night-sky-500 px-5 py-3 font-bold text-white transition hover:bg-night-sky-300 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-4 focus:ring-night-sky-500/20 sm:w-auto"
           >
-            Send message
+            {isSending ? "Sending..." : "Send message"}
           </button>
         </form>
       </section>
