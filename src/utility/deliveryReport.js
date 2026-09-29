@@ -22,11 +22,6 @@ const STATUS_COLORS = {
   pending: [100, 116, 139],
 };
 
-function numberValue(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
 function formatDate(value) {
   if (!value) return "—";
   try {
@@ -93,14 +88,17 @@ function drawStatCard(doc, x, y, width, height, label, value, bgColor) {
  * @param {Array}  options.deliveries  - Delivery records to include (already filtered)
  * @param {object} options.filters     - { statusFilter, fromDate, toDate }
  */
-export async function downloadDeliveryReport({ deliveries = [], filters = {} }) {
+export async function downloadDeliveryReport({
+  deliveries = [],
+  filters = {},
+}) {
   if (!deliveries || deliveries.length === 0) {
     throw new Error("No deliveries available to generate the report.");
   }
 
   // Sort newest due-date first
   const sorted = [...deliveries].sort(
-    (a, b) => new Date(b.dueDate) - new Date(a.dueDate)
+    (a, b) => new Date(b.dueDate) - new Date(a.dueDate),
   );
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -159,13 +157,15 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
   const filterParts = [];
   if (filters.statusFilter && filters.statusFilter !== "all") {
     filterParts.push(
-      `Status: ${STATUS_LABELS[filters.statusFilter] || filters.statusFilter}`
+      `Status: ${STATUS_LABELS[filters.statusFilter] || filters.statusFilter}`,
     );
   }
-  if (filters.fromDate) filterParts.push(`From: ${formatDate(filters.fromDate)}`);
+  if (filters.fromDate)
+    filterParts.push(`From: ${formatDate(filters.fromDate)}`);
   if (filters.toDate) filterParts.push(`To: ${formatDate(filters.toDate)}`);
-  const filterSummary =
-    filterParts.length ? filterParts.join("  |  ") : "All deliveries";
+  const filterSummary = filterParts.length
+    ? filterParts.join("  |  ")
+    : "All deliveries";
   doc.text(filterSummary, rightX, 28, { align: "right" });
 
   // Separator
@@ -187,7 +187,7 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
     cardH,
     "Total",
     `${sorted.length} Records`,
-    [18, 46, 74]
+    [18, 46, 74],
   );
   drawStatCard(
     doc,
@@ -197,7 +197,7 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
     cardH,
     "Delivered",
     `${counts.delivered} Orders`,
-    [16, 140, 95]
+    [16, 140, 95],
   );
   drawStatCard(
     doc,
@@ -207,7 +207,7 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
     cardH,
     "In Progress",
     `${counts.processing + counts.out_for_delivery} Orders`,
-    [217, 119, 6]
+    [217, 119, 6],
   );
   drawStatCard(
     doc,
@@ -217,7 +217,7 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
     cardH,
     "Cancelled",
     `${counts.cancelled} Orders`,
-    [220, 38, 38]
+    [220, 38, 38],
   );
 
   // ── Section heading ──
@@ -233,18 +233,16 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
   doc.text(
     `${sorted.length} record${sorted.length !== 1 ? "s" : ""} included`,
     startX + 36,
-    currentY
+    currentY,
   );
 
   currentY += 5;
 
   // ── Main table ──
   const tableBody = sorted.map((delivery, index) => {
-    const orderID =
-      delivery.orderID?._id || delivery.orderID || "—";
+    const orderID = delivery.orderID?._id || delivery.orderID || "—";
     const shortID = String(orderID).slice(-10).toUpperCase();
-    const statusText =
-      STATUS_LABELS[delivery.status] || delivery.status || "—";
+    const statusText = STATUS_LABELS[delivery.status] || delivery.status || "—";
     const dueDate = formatDate(delivery.dueDate);
     const address = delivery.deliveryAddress || "—";
 
@@ -277,28 +275,13 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
       3: { cellWidth: 28, halign: "center" },
       4: { cellWidth: 30, halign: "center" },
     },
-    // Colour-code status text per row
-    didDrawCell(data) {
+    // Colour-code status text without replacing the table's rendered value.
+    didParseCell(data) {
       if (data.section === "body" && data.column.index === 4) {
         const delivery = sorted[data.row.index];
         const color = STATUS_COLORS[delivery?.status] || [45, 55, 65];
-        doc.setTextColor(...color);
-        doc.setFont(undefined, "bold");
-        doc.setFontSize(8);
-        doc.text(
-          String(data.cell.text[0] || ""),
-          data.cell.x + data.cell.width / 2,
-          data.cell.y + data.cell.height / 2 + 1,
-          { align: "center" }
-        );
-        doc.setTextColor(45, 55, 65);
-        doc.setFont(undefined, "normal");
-      }
-    },
-    // Suppress default text for status column (drawn manually above)
-    willDrawCell(data) {
-      if (data.section === "body" && data.column.index === 4) {
-        data.cell.text = [""];
+        data.cell.styles.textColor = color;
+        data.cell.styles.fontStyle = "bold";
       }
     },
   });
@@ -354,7 +337,7 @@ export async function downloadDeliveryReport({ deliveries = [], filters = {} }) 
     doc.text(
       "Kannangara Enterprises — Quality Tools, Building Materials & Hardware Supplies",
       startX,
-      289
+      289,
     );
     doc.text(`Page ${i} of ${totalPages}`, rightX, 289, { align: "right" });
   }
