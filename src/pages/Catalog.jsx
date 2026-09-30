@@ -27,7 +27,7 @@ function getCategoryPath(categories, categoryID) {
   return {};
 }
 
-function Catalog({ cart, setCart }) {
+function Catalog({ cart, setCart, categoryNames }) {
   const [searchParams] = useSearchParams();
   const categoryID = searchParams.get("category") || "";
   const searchTerm = searchParams.get("search")?.trim() || "";
@@ -174,6 +174,7 @@ function Catalog({ cart, setCart }) {
           products={filteredProducts}
           cart={cart}
           setCart={setCart}
+          categoryNames={categoryNames}
           loading={loading}
           title={title}
         />

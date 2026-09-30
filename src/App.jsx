@@ -26,6 +26,7 @@ import ContactUs from "./pages/ContactUs";
 import Messages from "./pages/admin/Messages";
 import HeroSlides from "./pages/admin/HeroSlides";
 import { getProducts } from "./api/product";
+import { getCategories } from "./api/category";
 import { getCart } from "./api/cart";
 import { useEffect, useState } from "react";
 
@@ -42,6 +43,7 @@ function normalizeCart(cartResponse) {
 function App() {
   const [cart, setCart] = useState(emptyCart);
   const [products, setProducts] = useState([]);
+  const [categoryNames, setCategoryNames] = useState({});
   const [productsLoading, setProductsLoading] = useState(true);
   const location = useLocation();
   const isLoggedIn = window.localStorage.getItem("loggedIn");
@@ -59,6 +61,29 @@ function App() {
     }
 
     loadProducts();
+  }, []);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const categories = await getCategories();
+        const names = {};
+
+        categories.forEach((category) => {
+          names[category._id] = category.name;
+
+          (category.subCategories || []).forEach((subcategory) => {
+            names[subcategory._id] = `${category.name} / ${subcategory.name}`;
+          });
+        });
+
+        setCategoryNames(names);
+      } catch (error) {
+        console.error("Unable to load categories", error);
+      }
+    }
+
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -111,6 +136,7 @@ function App() {
                     loading={productsLoading}
                     cart={cart}
                     setCart={setCart}
+                    categoryNames={categoryNames}
                   />
                 }
               />
@@ -122,12 +148,19 @@ function App() {
                     loading={productsLoading}
                     cart={cart}
                     setCart={setCart}
+                    categoryNames={categoryNames}
                   />
                 }
               />
               <Route
                 path="/catalog"
-                element={<Catalog cart={cart} setCart={setCart} />}
+                element={
+                  <Catalog
+                    cart={cart}
+                    setCart={setCart}
+                    categoryNames={categoryNames}
+                  />
+                }
               />
             </>
           )}
@@ -192,6 +225,7 @@ function App() {
                       loading={productsLoading}
                       cart={cart}
                       setCart={setCart}
+                      categoryNames={categoryNames}
                     />
                   }
                 />
@@ -204,12 +238,19 @@ function App() {
                       loading={productsLoading}
                       cart={cart}
                       setCart={setCart}
+                      categoryNames={categoryNames}
                     />
                   }
                 />
                 <Route
                   path="/catalog"
-                  element={<Catalog cart={cart} setCart={setCart} />}
+                  element={
+                    <Catalog
+                      cart={cart}
+                      setCart={setCart}
+                      categoryNames={categoryNames}
+                    />
+                  }
                 />
               </>
             )}

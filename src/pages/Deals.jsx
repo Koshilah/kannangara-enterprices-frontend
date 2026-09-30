@@ -1,6 +1,6 @@
 import ProductContainer from "../components/ProductContainer";
 
-function Deals({ products, cart, setCart, loading }) {
+function Deals({ products, cart, setCart, loading, categoryNames }) {
   const dealProducts = loading
     ? []
     : products.filter((p) => p.discountPrice > 0);
@@ -12,6 +12,7 @@ function Deals({ products, cart, setCart, loading }) {
         products={dealProducts}
         cart={cart}
         setCart={setCart}
+        categoryNames={categoryNames}
         loading={loading}
         title="Today's Deals"
       />

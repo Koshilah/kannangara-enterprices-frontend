@@ -4,6 +4,7 @@ function ProductContainer({
   products,
   cart,
   setCart,
+  categoryNames,
   loading,
   title = "Best Sellers",
 }) {
@@ -30,6 +31,7 @@ function ProductContainer({
               product={product}
               cart={cart}
               setCart={setCart}
+              categoryNames={categoryNames}
             />
           ))}
         </div>

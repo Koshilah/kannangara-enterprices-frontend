@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { addToCart } from "../api/cart";
 
-function ProductCard({ product, setCart }) {
+function ProductCard({ product, setCart, categoryNames = {} }) {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -37,9 +37,21 @@ function ProductCard({ product, setCart }) {
       maximumFractionDigits: 2,
     });
 
-  const category = Array.isArray(product?.category)
-    ? product.category.join(", ")
-    : product?.category;
+  const categoryValues = Array.isArray(product?.category)
+    ? product.category
+    : product?.category
+      ? [product.category]
+      : [];
+  const category = categoryValues
+    .map((value) => {
+      if (typeof value === "object" && value !== null) {
+        return value.name || value.title;
+      }
+
+      return categoryNames[String(value)] || value;
+    })
+    .filter(Boolean)
+    .join(", ");
 
   const handleAddToCart = async () => {
     if (isOutOfStock || isAdding) return;

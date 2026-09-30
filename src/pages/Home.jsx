@@ -1,9 +1,9 @@
 import ProductContainer from "../components/ProductContainer";
 import HeroSlider from "../components/HeroSlider";
 import SearchSection from "../components/SearchSection";
-import Footer from "../components/Footer"
+import Footer from "../components/Footer";
 
-function Home({ products, cart, setCart, loading }) {
+function Home({ products, cart, setCart, loading, categoryNames }) {
   return (
     <main className="w-full">
       <title>Home | Kannangara Hardwares</title>
@@ -14,6 +14,7 @@ function Home({ products, cart, setCart, loading }) {
           products={products}
           cart={cart}
           setCart={setCart}
+          categoryNames={categoryNames}
           loading={loading}
         />
       </div>
