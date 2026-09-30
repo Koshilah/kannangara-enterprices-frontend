@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
   createProduct,
@@ -28,6 +28,8 @@ function ProductForm() {
   const [form, setForm] = useState(emptyForm);
   const [categories, setCategories] = useState([]);
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreviewURL, setImagePreviewURL] = useState("");
+  const previewObjectURLRef = useRef(null);
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -87,6 +89,16 @@ function ProductForm() {
       ]),
     [categories],
   );
+
+  useEffect(() => {
+    return () => {
+      if (previewObjectURLRef.current) {
+        URL.revokeObjectURL(previewObjectURLRef.current);
+      }
+    };
+  }, []);
+
+  const previewImage = imagePreviewURL || form.imageURL;
 
   function updateField(event) {
     const { name, value, type, checked } = event.target;
@@ -333,6 +345,20 @@ function ProductForm() {
                   accept="image/*"
                   onChange={(event) => {
                     const file = event.target.files?.[0] || null;
+
+                    if (previewObjectURLRef.current) {
+                      URL.revokeObjectURL(previewObjectURLRef.current);
+                      previewObjectURLRef.current = null;
+                    }
+
+                    if (file) {
+                      const objectURL = URL.createObjectURL(file);
+                      previewObjectURLRef.current = objectURL;
+                      setImagePreviewURL(objectURL);
+                    } else {
+                      setImagePreviewURL("");
+                    }
+
                     setImageFile(file);
                     setFieldErrors((current) => ({
                       ...current,
@@ -348,6 +374,15 @@ function ProductForm() {
                   <span className="text-xs font-medium text-red-600">
                     {fieldErrors.imageFile}
                   </span>
+                )}
+                {previewImage && (
+                  <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
+                    <img
+                      src={previewImage}
+                      alt="Product preview"
+                      className="h-32 w-full rounded-lg object-cover"
+                    />
+                  </div>
                 )}
               </label>
             </div>
