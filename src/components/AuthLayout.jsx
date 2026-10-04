@@ -5,6 +5,9 @@ function AuthLayout({ layoutFor, children }) {
   if (layoutFor === "Sign In") {
     title = "Welcome Back!";
     tagline = "Sign In for better shopping experience";
+  } else if (layoutFor === "Reset Password") {
+    title = "Reset Password";
+    tagline = "Recover your account credentials";
   }
   return (
     <section className="h-dvh md:grid md:grid-cols-[1fr_1.5fr]">

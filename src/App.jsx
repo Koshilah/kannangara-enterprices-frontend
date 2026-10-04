@@ -2,6 +2,7 @@ import "./App.css";
 import { Routes, Route, Navigate, useLocation } from "react-router";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
+import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import Deals from "./pages/Deals";
 import Catalog from "./pages/Catalog";
@@ -117,7 +118,9 @@ function App() {
   const isCashier = Boolean(user?.isCashier);
   const isAdminPanelUser = isAdmin || isManager || isCashier;
 
-  const hideNavbar = ["/login", "/register"].includes(location.pathname);
+  const hideNavbar = ["/login", "/register", "/reset-password"].includes(
+    location.pathname,
+  );
 
   return (
     <>
@@ -128,6 +131,7 @@ function App() {
             <>
               <Route path="/login" element={<SignIn />} />
               <Route path="/register" element={<SignUp />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/"
                 element={
@@ -168,6 +172,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/login" element={<Navigate to="/" />} />
             <Route path="/register" element={<Navigate to="/" />} />
+            <Route path="/reset-password" element={<Navigate to="/" />} />
             <Route
               path="/cart"
               element={

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import AuthLayout from "../components/AuthLayout";
 import Form from "../components/Form";
 import axios from "axios";
@@ -7,11 +7,15 @@ import { isValidEmail } from "../utility/inputValidation";
 import { login, saveToLocalStorage } from "../api/auth";
 
 function SignIn() {
+  const location = useLocation();
   const [inputs, setInputs] = useState({ email: "", password: "" });
 
   const [errors, setErrors] = useState({ email: "", password: "" });
 
   const [systemError, setSystemError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(
+    location.state?.successMessage || "",
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
@@ -34,6 +38,7 @@ function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSystemError("");
+    setSuccessMessage("");
     setErrors({ email: "", password: "" });
 
     if (!isValidEmail(inputs.email)) {
@@ -75,6 +80,13 @@ function SignIn() {
   return (
     <AuthLayout layoutFor={"Sign In"}>
       <title>Log In | Kannangara Hardwares</title>
+      {successMessage && (
+        <div className="max-w-lg mx-auto mt-4 px-3">
+          <div className="border py-3 px-4 w-full bg-green-100 border-green-500 text-green-800 rounded-xl text-center text-sm font-medium">
+            {successMessage}
+          </div>
+        </div>
+      )}
       <Form
         title={"Sign In"}
         formElements={formElements}

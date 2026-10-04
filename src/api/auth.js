@@ -162,3 +162,17 @@ export function logout() {
 
   clearAuthState();
 }
+
+export async function verifyEmail(email) {
+  const response = await apiBase.post("/auth/verify-email", { email });
+  return response.data;
+}
+
+export async function resetPassword({ email, password }) {
+  const response = await apiBase.post("/auth/reset-password", {
+    email,
+    password,
+  });
+  return response.data;
+}
+

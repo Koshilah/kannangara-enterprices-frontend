@@ -102,9 +102,12 @@ function Form({
         </span>
       </button>
       {title === "Sign In" && (
-        <p className="text-sm cursor-pointer text-blue-700 mb-2 hover:text-blue-900 ">
+        <Link
+          to="/reset-password"
+          className="text-sm cursor-pointer text-blue-700 mb-2 hover:text-blue-900"
+        >
           Forgot Password?
-        </p>
+        </Link>
       )}
       {accountStatusText}
     </form>
