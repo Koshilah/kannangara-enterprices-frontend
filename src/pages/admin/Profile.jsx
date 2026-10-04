@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { getProfile, updatePassword, updateProfile } from "../../api/user";
+import {
+  isStrongPassword,
+  isPasswordMatched,
+} from "../../utility/inputValidation";
 
 const emptyProfile = { name: "", email: "" };
 const emptyPassword = {
@@ -12,6 +16,11 @@ function Profile() {
   const [profile, setProfile] = useState(emptyProfile);
   const [draft, setDraft] = useState(emptyProfile);
   const [passwords, setPasswords] = useState(emptyPassword);
+  const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [busy, setBusy] = useState("");
@@ -73,13 +82,98 @@ function Profile() {
     }
   }
 
+  function handleCurrentPasswordChange(val) {
+    setPasswords((prev) => ({ ...prev, currentPassword: val }));
+    if (passwordErrors.currentPassword) {
+      setPasswordErrors((prev) => ({ ...prev, currentPassword: "" }));
+    }
+    clearFeedback();
+  }
+
+  function handleNewPasswordChange(val) {
+    setPasswords((prev) => ({ ...prev, newPassword: val }));
+    if (passwordErrors.newPassword) {
+      if (isStrongPassword(val) === "Password is Strong") {
+        setPasswordErrors((prev) => ({ ...prev, newPassword: "" }));
+      }
+    }
+    if (passwords.confirmPassword) {
+      const isMatched = isPasswordMatched(val, passwords.confirmPassword);
+      setPasswordErrors((prev) => ({
+        ...prev,
+        confirmPassword: isMatched ? "" : "Password doesn't Match!",
+      }));
+    }
+    clearFeedback();
+  }
+
+  function handleConfirmPasswordChange(val) {
+    setPasswords((prev) => ({ ...prev, confirmPassword: val }));
+    if (!val) {
+      setPasswordErrors((prev) => ({ ...prev, confirmPassword: "" }));
+      return;
+    }
+    const isMatched = isPasswordMatched(passwords.newPassword, val);
+    setPasswordErrors((prev) => ({
+      ...prev,
+      confirmPassword: isMatched ? "" : "Password doesn't Match!",
+    }));
+    clearFeedback();
+  }
+
   async function handlePasswordSubmit(event) {
     event.preventDefault();
     clearFeedback();
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      setError("New password and confirmation do not match.");
+
+    const errors = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
+    let hasError = false;
+
+    if (!passwords.currentPassword.trim()) {
+      errors.currentPassword = "Please enter your current password.";
+      hasError = true;
+    }
+
+    if (!passwords.newPassword) {
+      errors.newPassword = "Please enter a new password.";
+      hasError = true;
+    } else if (isStrongPassword(passwords.newPassword) !== "Password is Strong") {
+      errors.newPassword =
+        "Use a valid password with at least 8 characters, including uppercase, lowercase, number, and symbol.";
+      hasError = true;
+    } else if (
+      passwords.currentPassword &&
+      passwords.currentPassword === passwords.newPassword
+    ) {
+      errors.newPassword =
+        "New password must be different from current password.";
+      hasError = true;
+    }
+
+    if (!passwords.confirmPassword) {
+      errors.confirmPassword = "Please confirm your new password.";
+      hasError = true;
+    } else if (
+      !isPasswordMatched(passwords.newPassword, passwords.confirmPassword)
+    ) {
+      errors.confirmPassword = "Password doesn't Match!";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setPasswordErrors(errors);
+      setError(
+        errors.currentPassword ||
+          errors.newPassword ||
+          errors.confirmPassword ||
+          "Please fix the errors before updating your password.",
+      );
       return;
     }
+
     setBusy("password");
     try {
       await updatePassword({
@@ -87,15 +181,56 @@ function Profile() {
         newPassword: passwords.newPassword,
       });
       setPasswords(emptyPassword);
+      setPasswordErrors({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
       setNotice("Password updated successfully.");
     } catch (passwordError) {
-      setError(
-        passwordError.response?.data?.message || "Unable to update password.",
-      );
+      const msg =
+        passwordError.response?.data?.message || "Unable to update password.";
+      setError(msg);
+      if (
+        passwordError.response?.status === 400 &&
+        msg.toLowerCase().includes("current password")
+      ) {
+        setPasswordErrors((prev) => ({ ...prev, currentPassword: msg }));
+      }
     } finally {
       setBusy("");
     }
   }
+
+  const nextPasswordCriteria = [
+    {
+      label: "At least 8 characters",
+      met:
+        typeof passwords.newPassword === "string" &&
+        passwords.newPassword.length >= 8,
+    },
+    {
+      label: "Uppercase letter (A-Z)",
+      met: /[A-Z]/.test(passwords.newPassword),
+    },
+    {
+      label: "Lowercase letter (a-z)",
+      met: /[a-z]/.test(passwords.newPassword),
+    },
+    { label: "Number (0-9)", met: /\d/.test(passwords.newPassword) },
+    {
+      label: "Special symbol (!@#$...)",
+      met: /[^A-Za-z0-9\s]/.test(passwords.newPassword),
+    },
+  ];
+  const metCriteriaCount = nextPasswordCriteria.filter((c) => c.met).length;
+  const isNewPasswordStrong =
+    passwords.newPassword.length > 0 &&
+    isStrongPassword(passwords.newPassword) === "Password is Strong";
+  const isConfirmPasswordMatched =
+    Boolean(passwords.confirmPassword) &&
+    Boolean(passwords.newPassword) &&
+    isPasswordMatched(passwords.newPassword, passwords.confirmPassword);
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
@@ -194,35 +329,126 @@ function Profile() {
                 label="Current password"
                 type="password"
                 value={passwords.currentPassword}
+                error={passwordErrors.currentPassword}
                 onChange={(event) =>
-                  setPasswords({
-                    ...passwords,
-                    currentPassword: event.target.value,
-                  })
+                  handleCurrentPasswordChange(event.target.value)
                 }
               />
               <ProfileInput
                 label="New password"
                 type="password"
                 value={passwords.newPassword}
-                minLength="8"
+                error={passwordErrors.newPassword}
                 onChange={(event) =>
-                  setPasswords({
-                    ...passwords,
-                    newPassword: event.target.value,
-                  })
+                  handleNewPasswordChange(event.target.value)
                 }
-              />
+              >
+                {passwords.newPassword.length > 0 && (
+                  <div className="mt-1 rounded-xl border border-night-sky-100/15 bg-white/70 p-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-night-sky-300">
+                        Password Strength:
+                      </span>
+                      <span
+                        className={`flex items-center gap-1 font-bold ${
+                          isNewPasswordStrong
+                            ? "text-emerald-600"
+                            : metCriteriaCount >= 3
+                            ? "text-amber-600"
+                            : "text-rose-600"
+                        }`}
+                      >
+                        {isNewPasswordStrong ? (
+                          <>
+                            <svg
+                              className="size-3.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Password is Strong
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              className="size-3.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Password is Weak
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-5 gap-1.5">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${
+                            level <= metCriteriaCount
+                              ? isNewPasswordStrong
+                                ? "bg-emerald-500"
+                                : metCriteriaCount >= 3
+                                ? "bg-amber-400"
+                                : "bg-rose-500"
+                              : "bg-slate-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="mt-2.5 grid grid-cols-1 gap-1 text-[11px] sm:grid-cols-2">
+                      {nextPasswordCriteria.map((c, i) => (
+                        <div
+                          key={i}
+                          className={`flex items-center gap-1.5 transition-colors ${
+                            c.met
+                              ? "font-medium text-emerald-700"
+                              : "text-night-sky-100"
+                          }`}
+                        >
+                          {c.met ? (
+                            <svg
+                              className="size-3 shrink-0 text-emerald-600"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          ) : (
+                            <span className="mx-0.5 size-1.5 shrink-0 rounded-full bg-slate-300" />
+                          )}
+                          <span>{c.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </ProfileInput>
               <ProfileInput
                 label="Confirm new password"
                 type="password"
                 value={passwords.confirmPassword}
-                minLength="8"
+                error={passwordErrors.confirmPassword}
+                success={isConfirmPasswordMatched ? "Passwords match" : ""}
                 onChange={(event) =>
-                  setPasswords({
-                    ...passwords,
-                    confirmPassword: event.target.value,
-                  })
+                  handleConfirmPasswordChange(event.target.value)
                 }
               />
               <button
@@ -257,10 +483,26 @@ function ProfileInput({
   disabled = false,
   onChange,
   minLength,
+  error,
+  success,
+  children,
 }) {
+  const hasError = Boolean(error);
+  const hasSuccess = Boolean(success);
+
+  let borderClasses =
+    "border-night-sky-100/30 bg-night-sky-100/10 focus:border-night-sky-300 focus:ring-night-sky-200/20";
+  if (hasError) {
+    borderClasses =
+      "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-200/30";
+  } else if (hasSuccess) {
+    borderClasses =
+      "border-emerald-400 bg-emerald-50/20 focus:border-emerald-500 focus:ring-emerald-200/30";
+  }
+
   return (
-    <label className="flex flex-col gap-2 text-xs font-bold text-night-sky-300">
-      {label}
+    <div className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
+      <label>{label}</label>
       <input
         type={type}
         value={value}
@@ -268,9 +510,42 @@ function ProfileInput({
         required
         onChange={onChange}
         minLength={minLength}
-        className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-200/20 disabled:cursor-not-allowed disabled:opacity-70"
+        className={`rounded-xl border px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${borderClasses}`}
       />
-    </label>
+      {hasError && (
+        <p className="flex items-center gap-1.5 text-xs font-medium text-rose-600">
+          <svg
+            className="size-3.5 shrink-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>{error}</span>
+        </p>
+      )}
+      {hasSuccess && !hasError && (
+        <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+          <svg
+            className="size-3.5 shrink-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>{success}</span>
+        </p>
+      )}
+      {children}
+    </div>
   );
 }
 

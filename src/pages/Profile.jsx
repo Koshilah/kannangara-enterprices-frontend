@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { getProfile, updateProfile, updatePassword } from "../api/user";
 import { deleteAccount } from "../api/auth";
+import {
+  isStrongPassword,
+  isPasswordMatched,
+} from "../utility/inputValidation";
 import ProfileInputField from "../components/ProfileInputField";
 import ProfileShortcut from "../components/ProfileShortcut";
 
@@ -52,6 +56,11 @@ function Profile() {
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState({
+    current: "",
+    next: "",
+    confirm: "",
+  });
 
   // Account deletion state
   const [showDeletePopup, setShowDeletePopup] = useState(false);
@@ -174,8 +183,50 @@ function Profile() {
   const togglePasswordReset = () => {
     setShowPasswordReset(!showPasswordReset);
     setPasswords({ current: "", next: "", confirm: "" });
+    setPasswordErrors({ current: "", next: "", confirm: "" });
     setPasswordSuccess("");
     setPasswordError("");
+  };
+
+  const handleCurrentPasswordChange = (val) => {
+    setPasswords((prev) => ({ ...prev, current: val }));
+    if (passwordErrors.current) {
+      setPasswordErrors((prev) => ({ ...prev, current: "" }));
+    }
+    if (passwordError) {
+      setPasswordError("");
+    }
+  };
+
+  const handleNextPasswordChange = (val) => {
+    setPasswords((prev) => ({ ...prev, next: val }));
+
+    if (passwordErrors.next) {
+      if (isStrongPassword(val) === "Password is Strong") {
+        setPasswordErrors((prev) => ({ ...prev, next: "" }));
+      }
+    }
+
+    if (passwords.confirm) {
+      const isMatched = isPasswordMatched(val, passwords.confirm);
+      setPasswordErrors((prev) => ({
+        ...prev,
+        confirm: isMatched ? "" : "Password doesn't Match!",
+      }));
+    }
+  };
+
+  const handleConfirmPasswordChange = (val) => {
+    setPasswords((prev) => ({ ...prev, confirm: val }));
+    if (!val) {
+      setPasswordErrors((prev) => ({ ...prev, confirm: "" }));
+      return;
+    }
+    const isMatched = isPasswordMatched(passwords.next, val);
+    setPasswordErrors((prev) => ({
+      ...prev,
+      confirm: isMatched ? "" : "Password doesn't Match!",
+    }));
   };
 
   const handlePasswordSubmit = async (event) => {
@@ -183,16 +234,40 @@ function Profile() {
     setPasswordError("");
     setPasswordSuccess("");
 
-    if (!passwords.current) {
-      setPasswordError("Please enter your current password.");
-      return;
+    const errors = {
+      current: "",
+      next: "",
+      confirm: "",
+    };
+    let hasError = false;
+
+    if (!passwords.current.trim()) {
+      errors.current = "Please enter your current password.";
+      hasError = true;
     }
-    if (passwords.next.length < 8) {
-      setPasswordError("New password must be at least 8 characters long.");
-      return;
+
+    if (!passwords.next) {
+      errors.next = "Please enter a new password.";
+      hasError = true;
+    } else if (isStrongPassword(passwords.next) !== "Password is Strong") {
+      errors.next =
+        "Use a valid password with at least 8 characters, including uppercase, lowercase, number, and symbol.";
+      hasError = true;
+    } else if (passwords.current && passwords.current === passwords.next) {
+      errors.next = "New password must be different from current password.";
+      hasError = true;
     }
-    if (passwords.next !== passwords.confirm) {
-      setPasswordError("New password and confirmation do not match.");
+
+    if (!passwords.confirm) {
+      errors.confirm = "Please confirm your new password.";
+      hasError = true;
+    } else if (!isPasswordMatched(passwords.next, passwords.confirm)) {
+      errors.confirm = "Password doesn't Match!";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setPasswordErrors(errors);
       return;
     }
 
@@ -205,15 +280,22 @@ function Profile() {
 
       setPasswordSuccess("Password updated successfully!");
       setPasswords({ current: "", next: "", confirm: "" });
+      setPasswordErrors({ current: "", next: "", confirm: "" });
       setTimeout(() => {
         setShowPasswordReset(false);
         setPasswordSuccess("");
       }, 2500);
     } catch (err) {
-      setPasswordError(
+      const msg =
         err.response?.data?.message ||
-          "Failed to update password. Please check your current password.",
-      );
+        "Failed to update password. Please check your current password.";
+      setPasswordError(msg);
+      if (
+        err.response?.status === 400 &&
+        msg.toLowerCase().includes("current password")
+      ) {
+        setPasswordErrors((prev) => ({ ...prev, current: msg }));
+      }
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -247,6 +329,28 @@ function Profile() {
       setIsDeleting(false);
     }
   };
+
+  const nextPasswordCriteria = [
+    {
+      label: "At least 8 characters",
+      met: typeof passwords.next === "string" && passwords.next.length >= 8,
+    },
+    { label: "Uppercase letter (A-Z)", met: /[A-Z]/.test(passwords.next) },
+    { label: "Lowercase letter (a-z)", met: /[a-z]/.test(passwords.next) },
+    { label: "Number (0-9)", met: /\d/.test(passwords.next) },
+    {
+      label: "Special symbol (!@#$...)",
+      met: /[^A-Za-z0-9\s]/.test(passwords.next),
+    },
+  ];
+  const metCriteriaCount = nextPasswordCriteria.filter((c) => c.met).length;
+  const isNextPasswordStrong =
+    passwords.next.length > 0 &&
+    isStrongPassword(passwords.next) === "Password is Strong";
+  const isConfirmPasswordMatched =
+    Boolean(passwords.confirm) &&
+    Boolean(passwords.next) &&
+    isPasswordMatched(passwords.next, passwords.confirm);
 
   return (
     <div className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-night-sky-500 antialiased">
@@ -589,15 +693,16 @@ function Profile() {
                     label="Current Password"
                     value={passwords.current}
                     show={showPasswords.current}
+                    autoComplete="current-password"
+                    error={passwordErrors.current}
+                    status={passwordErrors.current ? "error" : "neutral"}
                     onToggle={() =>
                       setShowPasswords((prev) => ({
                         ...prev,
                         current: !prev.current,
                       }))
                     }
-                    onChange={(val) =>
-                      setPasswords({ ...passwords, current: val })
-                    }
+                    onChange={handleCurrentPasswordChange}
                   />
 
                   <PasswordInputField
@@ -605,32 +710,149 @@ function Profile() {
                     label="New Password"
                     value={passwords.next}
                     show={showPasswords.next}
+                    autoComplete="new-password"
+                    error={passwordErrors.next}
+                    status={
+                      passwordErrors.next
+                        ? "error"
+                        : isNextPasswordStrong
+                        ? "success"
+                        : "neutral"
+                    }
                     onToggle={() =>
                       setShowPasswords((prev) => ({
                         ...prev,
                         next: !prev.next,
                       }))
                     }
-                    onChange={(val) =>
-                      setPasswords({ ...passwords, next: val })
-                    }
+                    onChange={handleNextPasswordChange}
                     helperText="At least 8 characters with upper, lower, number & symbol"
-                  />
+                  >
+                    {passwords.next.length > 0 && (
+                      <div className="mt-2.5 rounded-xl border border-night-sky-100/15 bg-slate-50/80 p-3">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-night-sky-300">
+                            Password Strength:
+                          </span>
+                          <span
+                            className={`flex items-center gap-1 font-bold ${
+                              isNextPasswordStrong
+                                ? "text-emerald-600"
+                                : metCriteriaCount >= 3
+                                ? "text-amber-600"
+                                : "text-rose-600"
+                            }`}
+                          >
+                            {isNextPasswordStrong ? (
+                              <>
+                                <svg
+                                  className="size-3.5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                Password is Strong
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="size-3.5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                Password is Weak
+                              </>
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Progress indicator bars */}
+                        <div className="mt-2 grid grid-cols-5 gap-1.5">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={`h-1.5 rounded-full transition-all duration-300 ${
+                                level <= metCriteriaCount
+                                  ? isNextPasswordStrong
+                                    ? "bg-emerald-500"
+                                    : metCriteriaCount >= 3
+                                    ? "bg-amber-400"
+                                    : "bg-rose-500"
+                                  : "bg-slate-200"
+                              }`}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Checklist items */}
+                        <div className="mt-2.5 grid grid-cols-1 gap-1 text-[11px] sm:grid-cols-2">
+                          {nextPasswordCriteria.map((c, i) => (
+                            <div
+                              key={i}
+                              className={`flex items-center gap-1.5 transition-colors ${
+                                c.met
+                                  ? "font-medium text-emerald-700"
+                                  : "text-night-sky-100"
+                              }`}
+                            >
+                              {c.met ? (
+                                <svg
+                                  className="size-3 shrink-0 text-emerald-600"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              ) : (
+                                <span className="mx-0.5 size-1.5 shrink-0 rounded-full bg-slate-300" />
+                              )}
+                              <span>{c.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </PasswordInputField>
 
                   <PasswordInputField
                     id="confirm-password"
                     label="Confirm New Password"
                     value={passwords.confirm}
                     show={showPasswords.confirm}
+                    autoComplete="new-password"
+                    error={passwordErrors.confirm}
+                    success={
+                      isConfirmPasswordMatched ? "Passwords match" : ""
+                    }
+                    status={
+                      passwordErrors.confirm
+                        ? "error"
+                        : isConfirmPasswordMatched
+                        ? "success"
+                        : "neutral"
+                    }
                     onToggle={() =>
                       setShowPasswords((prev) => ({
                         ...prev,
                         confirm: !prev.confirm,
                       }))
                     }
-                    onChange={(val) =>
-                      setPasswords({ ...passwords, confirm: val })
-                    }
+                    onChange={handleConfirmPasswordChange}
                   />
 
                   <button
@@ -898,15 +1120,34 @@ function PasswordInputField({
   show,
   onToggle,
   onChange,
+  onKeyUp,
   helperText,
+  error,
+  success,
+  status = "neutral",
+  autoComplete,
+  children,
 }) {
+  const hasError = Boolean(error);
+  const hasSuccess = Boolean(success);
+
+  let borderClasses =
+    "border-night-sky-100/30 bg-slate-50 focus:border-night-sky-400 focus:bg-white focus:ring-night-sky-200/20";
+  if (status === "error" || hasError) {
+    borderClasses =
+      "border-rose-400 bg-rose-50/15 focus:border-rose-500 focus:bg-white focus:ring-rose-200/30";
+  } else if (status === "success" || hasSuccess) {
+    borderClasses =
+      "border-emerald-400 bg-emerald-50/15 focus:border-emerald-500 focus:bg-white focus:ring-emerald-200/30";
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between">
         <label htmlFor={id} className="text-xs font-bold text-night-sky-300">
           {label}
         </label>
-        {helperText && (
+        {helperText && !hasError && !hasSuccess && (
           <span className="text-[10px] text-night-sky-100">{helperText}</span>
         )}
       </div>
@@ -917,14 +1158,16 @@ function PasswordInputField({
           type={show ? "text" : "password"}
           value={value}
           required
+          autoComplete={autoComplete}
           onChange={(e) => onChange(e.target.value)}
-          className="h-10 w-full rounded-xl border border-night-sky-100/30 bg-slate-50 px-3 pr-10 text-sm text-night-sky-500 outline-none transition focus:border-night-sky-400 focus:bg-white focus:ring-2 focus:ring-night-sky-200/20"
+          onKeyUp={onKeyUp}
+          className={`h-10 w-full rounded-xl border px-3 pr-10 text-sm text-night-sky-500 outline-none transition focus:ring-2 ${borderClasses}`}
         />
         <button
           type="button"
           onClick={onToggle}
           className="absolute inset-y-0 right-0 flex items-center pr-3 text-night-sky-200 hover:text-night-sky-400"
-          aria-label={show ? "Hide password" : "Show password"}
+          aria-label={show ? `Hide ${label}` : `Show ${label}`}
         >
           {show ? (
             <svg
@@ -963,6 +1206,42 @@ function PasswordInputField({
           )}
         </button>
       </div>
+
+      {hasError && (
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-600">
+          <svg
+            className="size-3.5 shrink-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>{error}</span>
+        </p>
+      )}
+
+      {hasSuccess && !hasError && (
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+          <svg
+            className="size-3.5 shrink-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>{success}</span>
+        </p>
+      )}
+
+      {children}
     </div>
   );
 }
