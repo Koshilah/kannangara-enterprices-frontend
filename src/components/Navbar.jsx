@@ -10,7 +10,7 @@ function Navbar({ isLoggedIn, user, cart }) {
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-white px-5 py-1 shadow-sm">
-      <div className="flex gap-0.5 items-center cursor-pointer">
+      <Link to={'/'}><div className="flex gap-0.5 items-center cursor-pointer">
         <img src="/logo.png" alt="logo" className="size-14" />
         <div className="">
           <p className="text-night-sky-500 font-bold text-xl tracking-wide leading-none">
@@ -18,7 +18,7 @@ function Navbar({ isLoggedIn, user, cart }) {
           </p>
           <p className="leading-none">Hardwares</p>
         </div>
-      </div>
+      </div></Link>
       <ul className="hidden md:flex gap-10 font-semibold" id="nav-links">
         <li>
           <NavLink to="/" end className={navLinkClass}>
