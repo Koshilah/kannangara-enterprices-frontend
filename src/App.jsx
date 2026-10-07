@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RenderNavbar from "./components/RenderNavbar";
 import Unauthorized from "./pages/Unauthorized";
 import ContactUs from "./pages/ContactUs";
+import AboutUs from "./pages/AboutUs";
 import Messages from "./pages/admin/Messages";
 import HeroSlides from "./pages/admin/HeroSlides";
 import { getProducts } from "./api/product";
@@ -262,7 +263,7 @@ function App() {
           </Route>
 
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="/about" element={null} />
+          <Route path="/about" element={<AboutUs />} />
           <Route path="*" element={<Unauthorized />} />
         </Routes>
       </div>

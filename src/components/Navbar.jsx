@@ -30,8 +30,10 @@ function Navbar({ isLoggedIn, user, cart }) {
             Deals
           </NavLink>
         </li>
-        <li className="cursor-pointer hover:text-night-sky-500 hover:font-bold">
-          About Us
+        <li>
+          <NavLink to="/about" className={navLinkClass}>
+            About Us
+          </NavLink>
         </li>
         <li>
           <NavLink to="/contact" className={navLinkClass}>
