@@ -80,9 +80,6 @@ function Navbar({ isLoggedIn, user, cart }) {
                       Order History
                     </li>
                   </Link>
-                  <li className="cursor-pointer  hover:text-night-sky-500 hover:font-semibold">
-                    Recent Transaction
-                  </li>
                 </ul>
                 <hr className="my-4 border-neutral-400" />
                 <button
