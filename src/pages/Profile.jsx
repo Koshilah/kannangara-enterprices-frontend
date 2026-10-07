@@ -4,6 +4,8 @@ import { deleteAccount } from "../api/auth";
 import {
   isStrongPassword,
   isPasswordMatched,
+  isValidEmail,
+  isValidPhone,
 } from "../utility/inputValidation";
 import ProfileInputField from "../components/ProfileInputField";
 import ProfileShortcut from "../components/ProfileShortcut";
@@ -33,6 +35,7 @@ function Profile() {
 
   const [profile, setProfile] = useState(initialProfile);
   const [draft, setDraft] = useState(initialProfile);
+  const [draftErrors, setDraftErrors] = useState({ phone: "", email: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -114,8 +117,34 @@ function Profile() {
   };
 
   const updateDraft = (event) => {
-    setDraft({ ...draft, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    setDraft((prev) => ({ ...prev, [name]: value }));
     clearAlerts();
+
+    // Live validation
+    if (name === "phone") {
+      if (value.trim() === "") {
+        setDraftErrors((prev) => ({ ...prev, phone: "" }));
+      } else if (!/^\d+$/.test(value.trim())) {
+        setDraftErrors((prev) => ({ ...prev, phone: "Only numbers are allowed." }));
+      } else if (value.trim().length < 9) {
+        setDraftErrors((prev) => ({ ...prev, phone: "Phone number must be at least 9 digits." }));
+      } else if (value.trim().length > 10) {
+        setDraftErrors((prev) => ({ ...prev, phone: "Phone number must not exceed 10 digits." }));
+      } else {
+        setDraftErrors((prev) => ({ ...prev, phone: "" }));
+      }
+    }
+
+    if (name === "email") {
+      if (value.trim() === "") {
+        setDraftErrors((prev) => ({ ...prev, email: "" }));
+      } else if (!isValidEmail(value)) {
+        setDraftErrors((prev) => ({ ...prev, email: "Please enter a valid email address." }));
+      } else {
+        setDraftErrors((prev) => ({ ...prev, email: "" }));
+      }
+    }
   };
 
   const saveProfile = async (event) => {
@@ -130,6 +159,15 @@ function Profile() {
       setErrorMessage("Email address is required.");
       return;
     }
+    if (!isValidEmail(draft.email)) {
+      setDraftErrors((prev) => ({ ...prev, email: "Please enter a valid email address." }));
+      return;
+    }
+    if (draft.phone.trim() && !isValidPhone(draft.phone)) {
+      setDraftErrors((prev) => ({ ...prev, phone: "Phone number must be 9–10 digits, numbers only." }));
+      return;
+    }
+    if (draftErrors.phone || draftErrors.email) return;
 
     setIsSaving(true);
     try {
@@ -176,6 +214,7 @@ function Profile() {
 
   const cancelEdit = () => {
     setDraft(profile);
+    setDraftErrors({ phone: "", email: "" });
     setIsEditing(false);
     clearAlerts();
   };
@@ -567,6 +606,7 @@ function Profile() {
                 isEditing={isEditing}
                 onChange={updateDraft}
                 placeholder="john@example.com"
+                error={draftErrors.email}
                 icon={
                   <svg
                     className="size-5 text-night-sky-200"
@@ -589,6 +629,7 @@ function Profile() {
                 isEditing={isEditing}
                 onChange={updateDraft}
                 placeholder="+94 7X XXX XXXX"
+                error={draftErrors.phone}
                 icon={
                   <svg
                     className="size-5 text-night-sky-200"

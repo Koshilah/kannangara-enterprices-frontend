@@ -4,6 +4,12 @@ export function isValidEmail(email) {
   );
 }
 
+export function isValidPhone(phone) {
+  if (typeof phone !== "string") return false;
+  const digitsOnly = phone.trim().replace(/\D/g, "");
+  return /^\d{9,10}$/.test(digitsOnly) && /^\d+$/.test(phone.trim());
+}
+
 export function isStrongPassword(password) {
   const hasMinimumLength = typeof password === "string" && password.length >= 8;
   const hasNumber = /\d/.test(password);
