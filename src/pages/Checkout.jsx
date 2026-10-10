@@ -30,8 +30,6 @@ function Checkout({ cart, setCart, products = [] }) {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
-
-  // Address form state
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [newAddress, setNewAddress] = useState({
     houseNo: "",
@@ -42,17 +40,13 @@ function Checkout({ cart, setCart, products = [] }) {
   });
   const [addressErrors, setAddressErrors] = useState({});
   const [isSavingAddress, setIsSavingAddress] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("cash"); 
 
-  // Payment method
-  const [paymentMethod, setPaymentMethod] = useState("cash"); // "cash" | "card"
-
-  // Order submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [orderSuccessData, setOrderSuccessData] = useState(null);
 
-  // Cart item processing
   const rows = useMemo(() => {
     const items = Array.isArray(cart) ? cart : cart?.items || [];
     return items.map((item) => {
@@ -86,10 +80,9 @@ function Checkout({ cart, setCart, products = [] }) {
     return rows.reduce((acc, row) => acc + row.totalPrice, 0);
   }, [rows]);
 
-  const deliveryFee = 0; // Free delivery / pickup
+  const deliveryFee = 0; 
   const grandTotal = subtotal + deliveryFee;
 
-  // Load saved addresses on mount
   useEffect(() => {
     let isMounted = true;
     async function loadUserAddresses() {
@@ -268,7 +261,6 @@ function Checkout({ cart, setCart, products = [] }) {
     }
   };
 
-  // If order was successfully placed, render Order Confirmation View
   if (orderSuccessData) {
     const { order } = orderSuccessData;
     return (
@@ -392,7 +384,6 @@ function Checkout({ cart, setCart, products = [] }) {
     );
   }
 
-  // If cart is empty
   if (rows.length === 0) {
     return (
       <main className="mx-auto max-w-4xl px-6 py-12 text-center">
@@ -424,7 +415,6 @@ function Checkout({ cart, setCart, products = [] }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <title>Checkout | Kannangara Hardwares</title>
-      {/* Header */}
       <div className="mb-8">
         <Link
           to="/cart"
@@ -442,9 +432,7 @@ function Checkout({ cart, setCart, products = [] }) {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        {/* Left Column: Fulfillment, Address, Payment */}
         <div className="space-y-6 lg:col-span-7">
-          {/* 1. Fulfillment Method */}
           <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="flex items-center gap-2 text-base font-bold text-night-sky-500">
               <span className="flex size-6 items-center justify-center rounded-full bg-night-sky-500 text-xs text-white">
@@ -454,7 +442,6 @@ function Checkout({ cart, setCart, products = [] }) {
             </h2>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Delivery Option */}
               <button
                 type="button"
                 onClick={() => setOrderType("delivery")}
@@ -485,7 +472,6 @@ function Checkout({ cart, setCart, products = [] }) {
                 </span>
               </button>
 
-              {/* Store Pickup Option */}
               <button
                 type="button"
                 onClick={() => setOrderType("pickup")}
@@ -517,7 +503,6 @@ function Checkout({ cart, setCart, products = [] }) {
               </button>
             </div>
 
-            {/* Delivery Estimate Box */}
             {orderType === "delivery" ? (
               <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3.5 text-sm text-slate-800">
                 <i className="fa-regular fa-clock text-night-sky-300" />
@@ -546,7 +531,6 @@ function Checkout({ cart, setCart, products = [] }) {
             )}
           </section>
 
-          {/* 2. Address Selection (Only if Home Delivery) */}
           {orderType === "delivery" && (
             <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
@@ -569,7 +553,6 @@ function Checkout({ cart, setCart, products = [] }) {
                 </button>
               </div>
 
-              {/* Add New Address Form */}
               {showAddressForm && (
                 <form
                   onSubmit={handleSaveNewAddress}
@@ -691,7 +674,6 @@ function Checkout({ cart, setCart, products = [] }) {
                 </form>
               )}
 
-              {/* Existing Address List */}
               <div className="mt-4">
                 {isLoadingAddresses ? (
                   <p className="py-4 text-center text-xs text-slate-500">
@@ -754,7 +736,6 @@ function Checkout({ cart, setCart, products = [] }) {
             </section>
           )}
 
-          {/* 3. Payment Option */}
           <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="flex items-center gap-2 text-base font-bold text-night-sky-500">
               <span className="flex size-6 items-center justify-center rounded-full bg-night-sky-500 text-xs text-white">
@@ -764,7 +745,6 @@ function Checkout({ cart, setCart, products = [] }) {
             </h2>
 
             <div className="mt-4 space-y-3">
-              {/* Cash Option */}
               <label
                 className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
                   paymentMethod === "cash"
@@ -834,14 +814,12 @@ function Checkout({ cart, setCart, products = [] }) {
           </section>
         </div>
 
-        {/* Right Column: Order Summary */}
         <div className="lg:col-span-5">
           <div className="sticky top-20 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-base font-bold text-night-sky-500">
               Order Summary
             </h2>
 
-            {/* Items list */}
             <div className="mt-4 max-h-64 divide-y divide-gray-100 overflow-y-auto pr-1">
               {rows.map((item, index) => (
                 <div
@@ -877,7 +855,6 @@ function Checkout({ cart, setCart, products = [] }) {
               ))}
             </div>
 
-            {/* Price Calculations */}
             <div className="mt-4 space-y-2 border-t border-gray-200 pt-4 text-sm">
               <div className="flex justify-between text-slate-600">
                 <span>Subtotal</span>
@@ -897,7 +874,6 @@ function Checkout({ cart, setCart, products = [] }) {
               </div>
             </div>
 
-            {/* Error banner */}
             {submissionError && (
               <div className="mt-4 rounded-lg bg-red-50 p-3 text-xs text-red-700">
                 <i className="fa-solid fa-circle-exclamation mr-1.5" />
@@ -905,7 +881,6 @@ function Checkout({ cart, setCart, products = [] }) {
               </div>
             )}
 
-            {/* Action button */}
             <div className="mt-6">
               <button
                 type="button"

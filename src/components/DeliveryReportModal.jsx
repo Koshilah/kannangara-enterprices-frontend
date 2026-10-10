@@ -9,16 +9,6 @@ const STATUSES = [
   { value: "cancelled", label: "Cancelled" },
 ];
 
-/**
- * Modal for filtering and downloading the delivery report.
- *
- * Props:
- *   onClose()
- *   onDownload({ statusFilter, fromDate, toDate, filteredDeliveries })
- *   totalCount      — total deliveries loaded
- *   deliveries      — full delivery array (used for live preview count)
- *   isDownloading   — bool
- */
 export default function DeliveryReportModal({
   onClose,
   onDownload,
@@ -31,7 +21,6 @@ export default function DeliveryReportModal({
   const [toDate, setToDate] = useState("");
   const backdropRef = useRef(null);
 
-  // Close on Escape key
   useEffect(() => {
     function handleKey(e) {
       if (e.key === "Escape") onClose();
@@ -40,7 +29,7 @@ export default function DeliveryReportModal({
     return () => document.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  // Live preview: count how many deliveries match current filters
+
   const matchedDeliveries = deliveries.filter((d) => {
     const matchStatus = statusFilter === "all" || d.status === statusFilter;
     const dueDate = d.dueDate
@@ -113,9 +102,7 @@ export default function DeliveryReportModal({
           </button>
         </div>
 
-        {/* Filter Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Status */}
           <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
             Delivery Status
             <select
@@ -131,7 +118,6 @@ export default function DeliveryReportModal({
             </select>
           </label>
 
-          {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
               Due Date From
@@ -155,7 +141,6 @@ export default function DeliveryReportModal({
             </label>
           </div>
 
-          {/* Clear filters link */}
           {(statusFilter !== "all" || fromDate || toDate) && (
             <button
               type="button"
@@ -170,7 +155,6 @@ export default function DeliveryReportModal({
             </button>
           )}
 
-          {/* Live preview count */}
           <div
             className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
               matchedCount === 0
@@ -196,7 +180,6 @@ export default function DeliveryReportModal({
               : `${matchedCount} of ${totalCount} deliveries will be included in the report.`}
           </div>
 
-          {/* Action buttons */}
           <div className="flex gap-3 pt-1">
             <button
               type="button"

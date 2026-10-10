@@ -56,8 +56,6 @@ function OrderSkeleton() {
   );
 }
 
-/* ─── Main page ─────────────────────────────────────────────────── */
-
 function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,7 +65,6 @@ function MyOrders() {
   const [downloadingReceiptID, setDownloadingReceiptID] = useState(null);
   const [isDownloadingHistory, setIsDownloadingHistory] = useState(false);
 
-  // Filter state
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
@@ -270,7 +267,6 @@ function MyOrders() {
           </div>
         </header>
 
-        {/* ── Alerts ── */}
         {notice && (
           <div
             role="status"
@@ -355,7 +351,6 @@ function MyOrders() {
           </div>
         )}
 
-        {/* ── Filter tabs ── */}
         {!isLoading && orders.length > 0 && (
           <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
             {FILTER_TABS.map((tab) => (
@@ -387,7 +382,6 @@ function MyOrders() {
           </div>
         )}
 
-        {/* ── Order list ── */}
         <section className="space-y-4">
           {isLoading ? (
             <>
@@ -402,7 +396,6 @@ function MyOrders() {
           ) : visibleOrders.length === 0 ? (
             <EmptyOrders />
           ) : (
-            // Sort newest first
             [...visibleOrders]
               .sort((a, b) => new Date(b.dateOrdered) - new Date(a.dateOrdered))
               .map((order) => (

@@ -174,7 +174,6 @@ function Delivery() {
     <main className="min-h-[calc(100vh-72px)] bg-night-sky-100/10 px-5 py-8 text-night-sky-500 md:px-8">
       <title>Delivery | Kannangara Hardwares</title>
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        {/* ── Page Header ── */}
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
@@ -185,7 +184,6 @@ function Delivery() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Showing count badge */}
             <div className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 px-5 py-4 sm:text-right">
               <p className="text-xs font-semibold uppercase tracking-wider text-night-sky-200">
                 Showing
@@ -198,7 +196,6 @@ function Delivery() {
               </p>
             </div>
 
-            {/* Download Report button */}
             <button
               type="button"
               onClick={() => setShowReportModal(true)}
@@ -223,7 +220,6 @@ function Delivery() {
           </div>
         </header>
 
-        {/* ── Report Filter Modal ── */}
         {showReportModal && (
           <DeliveryReportModal
             onClose={() => setShowReportModal(false)}
@@ -234,7 +230,6 @@ function Delivery() {
           />
         )}
 
-        {/* ── Alerts ── */}
         {(error || notice) && (
           <div
             className="rounded-xl border border-night-sky-200/30 bg-night-sky-100/10 px-4 py-3 text-sm text-night-sky-400"
@@ -244,7 +239,6 @@ function Delivery() {
           </div>
         )}
 
-        {/* ── Delivery Records Section ── */}
         <section className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 p-5 md:p-6">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
             <div>

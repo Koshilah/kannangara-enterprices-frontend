@@ -9,7 +9,7 @@ function formatCurrency(amount) {
 }
 
 function formatDate(date) {
-  if (!date) return "—";
+  if (!date) return "ï¿½";
   return new Date(date).toLocaleDateString("en-LK", {
     year: "numeric",
     month: "short",
@@ -127,7 +127,7 @@ function DetailChip({ label, value, children }) {
         {label}
       </dt>
       <dd className="mt-1 text-xs font-semibold text-night-sky-400">
-        {children || value || "—"}
+        {children || value || "ï¿½"}
       </dd>
     </div>
   );
@@ -152,9 +152,7 @@ function OrderCard({
 
   return (
     <article className="overflow-hidden rounded-2xl border border-night-sky-100/20 bg-white shadow-sm transition hover:shadow-md">
-      {/* Summary row */}
       <div className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-        {/* Left: order id + date */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-sm font-extrabold text-night-sky-500">
@@ -165,11 +163,10 @@ function OrderCard({
           </div>
           <p className="mt-1 text-xs text-night-sky-100">
             Placed on {formatDate(order.dateOrdered)}
-            {order.paymentMethod && ` · ${order.paymentMethod}`}
+            {order.paymentMethod && ` ï¿½ ${order.paymentMethod}`}
           </p>
         </div>
 
-        {/* Right: total + actions */}
         <div className="flex shrink-0 items-center gap-3">
           <span className="text-base font-extrabold text-night-sky-500">
             {formatCurrency(order.orderTotal)}
@@ -215,8 +212,6 @@ function OrderCard({
           )}
         </div>
       </div>
-
-      {/* Expanded detail panel */}
       {expanded && (
         <div className="border-t border-night-sky-100/15 px-6 pb-6 pt-5 space-y-6">
           {/* Delivery tracker */}
@@ -252,8 +247,6 @@ function OrderCard({
               </p>
             )}
           </div>
-
-          {/* Payment info */}
           <div className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 px-5 py-4 sm:grid-cols-4">
             <DetailChip label="Payment Method" value={order.paymentMethod} />
             <DetailChip label="Payment Status">
@@ -268,8 +261,6 @@ function OrderCard({
               </DetailChip>
             )}
           </div>
-
-          {/* Items table */}
           {(order.items || []).length > 0 && (
             <div>
               <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-night-sky-300">

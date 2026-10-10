@@ -6,7 +6,6 @@ function AboutUs() {
     <main className="w-full bg-slate-50">
       <title>About Us | Kannangara Hardwares</title>
 
-      {/* Hero Banner — same style as Contact Us */}
       <section className="bg-night-sky-500 px-6 py-16 text-white sm:px-10 lg:px-16 lg:py-20">
         <div className="mx-auto max-w-7xl">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-slate-300 sm:text-sm">
@@ -23,9 +22,7 @@ function AboutUs() {
         </div>
       </section>
 
-      {/* Main content — same two-column grid as Contact Us */}
       <section className="mx-auto grid max-w-7xl gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[0.85fr_1.4fr] lg:gap-16 lg:px-16 lg:py-16">
-        {/* Left column — quick facts */}
         <div>
           <h2 className="text-2xl font-bold text-night-sky-500 sm:text-3xl">
             Our story
@@ -69,7 +66,6 @@ function AboutUs() {
           </Link>
         </div>
 
-        {/* Right column — details card */}
         <div className="border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-2xl font-bold text-night-sky-500">
             Why choose us?
@@ -80,7 +76,6 @@ function AboutUs() {
           </p>
 
           <div className="mt-7 space-y-6">
-            {/* Value 1 */}
             <div className="flex gap-4">
               <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-night-sky-500 text-white">
                 <svg
@@ -107,7 +102,6 @@ function AboutUs() {
               </div>
             </div>
 
-            {/* Value 2 */}
             <div className="flex gap-4">
               <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-night-sky-500 text-white">
                 <svg
@@ -131,7 +125,6 @@ function AboutUs() {
               </div>
             </div>
 
-            {/* Value 3 */}
             <div className="flex gap-4">
               <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-night-sky-500 text-white">
                 <svg
@@ -159,7 +152,6 @@ function AboutUs() {
               </div>
             </div>
 
-            {/* Value 4 */}
             <div className="flex gap-4">
               <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-night-sky-500 text-white">
                 <svg

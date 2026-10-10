@@ -106,9 +106,7 @@ function ProductCard({ product, setCart, categoryNames = {} }) {
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl">
-      {/* Product Image & Floating Status Bubbles */}
       <div className="relative flex h-56 w-full items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100/60 p-5 sm:h-64">
-        {/* Top-left Stock Status Bubbles (Inside Card) */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
           {isOutOfStock && (
             <span
@@ -134,7 +132,6 @@ function ProductCard({ product, setCart, categoryNames = {} }) {
           )}
         </div>
 
-        {/* Top-right Discount Savings Bubble */}
         {hasDiscount && (
           <div className="absolute top-3 right-3 z-10">
             <span className="inline-flex items-center rounded-full bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
@@ -143,7 +140,6 @@ function ProductCard({ product, setCart, categoryNames = {} }) {
           </div>
         )}
 
-        {/* Product Image or Fallback */}
         {image && !imageError ? (
           <img
             src={image}
@@ -175,16 +171,13 @@ function ProductCard({ product, setCart, categoryNames = {} }) {
         )}
       </div>
 
-      {/* Product Information Body */}
       <div className="flex flex-1 flex-col p-5">
-        {/* Optional Category */}
         {category && (
           <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-night-sky-300 line-clamp-1">
             {category}
           </p>
         )}
 
-        {/* Title */}
         <h2
           className="line-clamp-2 min-h-11 text-base font-semibold leading-snug text-slate-900 transition-colors group-hover:text-night-sky-400"
           title={title}
@@ -192,7 +185,6 @@ function ProductCard({ product, setCart, categoryNames = {} }) {
           {title}
         </h2>
 
-        {/* Price Section: Side by Side with red crossed-out original price */}
         <div className="mt-3 mb-5 flex items-baseline gap-2.5 flex-wrap">
           {hasDiscount ? (
             <>
@@ -210,7 +202,6 @@ function ProductCard({ product, setCart, categoryNames = {} }) {
           )}
         </div>
 
-        {/* Add to Cart Button */}
         <button
           type="button"
           disabled={isOutOfStock || isAdding}

@@ -87,7 +87,6 @@ function Profile() {
         setProfile(loaded);
         setDraft(loaded);
 
-        // Synchronize updated profile to localStorage
         const stored = getStoredUser();
         window.localStorage.setItem(
           "user",
@@ -121,7 +120,6 @@ function Profile() {
     setDraft((prev) => ({ ...prev, [name]: value }));
     clearAlerts();
 
-    // Live validation
     if (name === "phone") {
       if (value.trim() === "") {
         setDraftErrors((prev) => ({ ...prev, phone: "" }));
@@ -188,7 +186,6 @@ function Profile() {
       setIsEditing(false);
       setSuccessMessage("Profile updated successfully!");
 
-      // Update localStorage so Navbar and other components reflect the new name/email
       const currentStored = getStoredUser();
       window.localStorage.setItem(
         "user",
@@ -200,7 +197,6 @@ function Profile() {
         }),
       );
 
-      // Trigger custom/storage event for any active listeners
       window.dispatchEvent(new Event("storage"));
     } catch (err) {
       const msg =
@@ -395,7 +391,6 @@ function Profile() {
     <div className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-night-sky-500 antialiased">
       <title>Profile | Kannangara Hardwares</title>
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-12">
-        {/* Profile Header Card */}
         <header className="mb-8 rounded-2xl border border-night-sky-100/20 bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
@@ -428,7 +423,6 @@ function Profile() {
               </div>
             </div>
 
-            {/* Quick Status / Refresh indicator */}
             <div className="flex items-center gap-3">
               {isLoadingProfile ? (
                 <div className="flex items-center gap-2 text-xs font-medium text-night-sky-200">
@@ -455,7 +449,6 @@ function Profile() {
           </div>
         </header>
 
-        {/* Global Feedback Banner */}
         {successMessage && (
           <div
             role="alert"
@@ -541,7 +534,6 @@ function Profile() {
         )}
 
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-          {/* Main Profile Info Section (7 Cols) */}
           <section className="rounded-2xl border border-night-sky-100/20 bg-white p-6 shadow-sm lg:col-span-7 sm:p-7">
             <div className="mb-6 flex items-center justify-between border-b border-night-sky-100/15 pb-4">
               <div>
@@ -687,9 +679,7 @@ function Profile() {
             </form>
           </section>
 
-          {/* Side Column: Security & Shortcuts (5 Cols) */}
           <div className="space-y-6 lg:col-span-5">
-            {/* Password Management Card */}
             <section className="rounded-2xl border border-night-sky-100/20 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
@@ -818,7 +808,6 @@ function Profile() {
                           </span>
                         </div>
 
-                        {/* Progress indicator bars */}
                         <div className="mt-2 grid grid-cols-5 gap-1.5">
                           {[1, 2, 3, 4, 5].map((level) => (
                             <div
@@ -836,7 +825,6 @@ function Profile() {
                           ))}
                         </div>
 
-                        {/* Checklist items */}
                         <div className="mt-2.5 grid grid-cols-1 gap-1 text-[11px] sm:grid-cols-2">
                           {nextPasswordCriteria.map((c, i) => (
                             <div
@@ -914,7 +902,6 @@ function Profile() {
               )}
             </section>
 
-            {/* Quick Activity Shortcuts */}
             <section className="rounded-2xl border border-night-sky-100/20 bg-white p-6 shadow-sm">
               <h2 className="text-base font-bold text-night-sky-500">
                 Quick Shortcuts
@@ -968,7 +955,6 @@ function Profile() {
               </div>
             </section>
 
-            {/* Danger Zone */}
             <section className="rounded-2xl border border-red-200/60 bg-red-50/40 p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-red-800">
                 Danger Zone
@@ -1005,7 +991,6 @@ function Profile() {
         </div>
       </main>
 
-      {/* Delete Account Step 1: Warning Dialog */}
       {showDeletePopup && (
         <div
           className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-xs"
@@ -1068,7 +1053,6 @@ function Profile() {
         </div>
       )}
 
-      {/* Delete Account Step 2: Confirm Password Dialog */}
       {showDeletePasswordPopup && (
         <div
           className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-xs"

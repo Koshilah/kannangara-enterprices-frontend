@@ -87,7 +87,6 @@ function ContactForm({ form, isSending, error, notice, onChange, onSubmit }) {
       </p>
 
       <div className="mt-7 grid gap-5 sm:grid-cols-2">
-        {/* Full name */}
         <div>
           <label
             htmlFor="contact-name"
@@ -112,7 +111,6 @@ function ContactForm({ form, isSending, error, notice, onChange, onSubmit }) {
           {touched.name && errors.name && <FieldError message={errors.name} />}
         </div>
 
-        {/* Email */}
         <div>
           <label
             htmlFor="contact-email"
@@ -223,7 +221,7 @@ function ContactUs() {
     try {
       await sendMessage(form);
       setForm({ name: "", email: "", subject: "", message: "" });
-      setResetKey((k) => k + 1); // reset ContactForm's touched state
+      setResetKey((k) => k + 1); 
       setNotice("Your message has been sent successfully.");
     } catch (sendError) {
       setError(
