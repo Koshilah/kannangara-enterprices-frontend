@@ -5,8 +5,10 @@ import {
   getEmployees,
   updateEmployeeRole,
 } from "../../api/user";
+import { downloadAuditReport } from "../../api/auditLog";
 import EmployeeFormModal from "../../components/admin/employees/EmployeeFormModal";
 import EmployeeTable from "../../components/admin/employees/EmployeeTable";
+import UserActionsModal from "../../components/admin/employees/UserActionsModal";
 
 function getCurrentUser() {
   try {
@@ -24,6 +26,9 @@ function Employee() {
   const [busyID, setBusyID] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [showActionsModal, setShowActionsModal] = useState(false);
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
+  const [reportError, setReportError] = useState("");
   const currentUser = getCurrentUser();
 
   useEffect(() => {
@@ -35,7 +40,9 @@ function Employee() {
         if (isMounted) setEmployees(loadedEmployees);
       } catch (loadError) {
         if (isMounted) {
-          setError(loadError.response?.data?.message || "Unable to load employees.");
+          setError(
+            loadError.response?.data?.message || "Unable to load employees.",
+          );
         }
       } finally {
         if (isMounted) setIsLoading(false);
@@ -63,12 +70,23 @@ function Employee() {
 
     try {
       if (modalMode === "edit") {
-        const updatedEmployee = await updateEmployeeRole(selectedEmployee._id, payload.role);
-        setEmployees((currentEmployees) => currentEmployees.map((employee) => employee._id === updatedEmployee._id ? updatedEmployee : employee));
+        const updatedEmployee = await updateEmployeeRole(
+          selectedEmployee._id,
+          payload.role,
+        );
+        setEmployees((currentEmployees) =>
+          currentEmployees.map((employee) =>
+            employee._id === updatedEmployee._id ? updatedEmployee : employee,
+          ),
+        );
         setNotice("Employee role updated successfully.");
       } else {
         const newEmployee = await createEmployee(payload);
-        setEmployees((currentEmployees) => [...currentEmployees, newEmployee].sort((left, right) => left.name.localeCompare(right.name)));
+        setEmployees((currentEmployees) =>
+          [...currentEmployees, newEmployee].sort((left, right) =>
+            left.name.localeCompare(right.name),
+          ),
+        );
         setNotice("Employee account created successfully.");
       }
       setModalMode(null);
@@ -89,12 +107,34 @@ function Employee() {
 
     try {
       await demoteEmployee(employee._id);
-      setEmployees((currentEmployees) => currentEmployees.filter((item) => item._id !== employee._id));
+      setEmployees((currentEmployees) =>
+        currentEmployees.filter((item) => item._id !== employee._id),
+      );
       setNotice(`${employee.name} is now a normal user.`);
     } catch (deleteError) {
-      setError(deleteError.response?.data?.message || "Unable to remove employee access.");
+      setError(
+        deleteError.response?.data?.message ||
+          "Unable to remove employee access.",
+      );
     } finally {
       setBusyID(null);
+    }
+  }
+
+  async function handleDownloadReport(filters) {
+    setIsDownloadingReport(true);
+    setReportError("");
+    try {
+      await downloadAuditReport(filters);
+      setShowActionsModal(false);
+    } catch (downloadError) {
+      setReportError(
+        downloadError.response?.data?.message ||
+          downloadError.message ||
+          "Unable to download the report.",
+      );
+    } finally {
+      setIsDownloadingReport(false);
     }
   }
 
@@ -105,31 +145,91 @@ function Employee() {
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-night-sky-300"></p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">Employees</h1>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
+              Employees
+            </h1>
             <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
           </div>
           <div className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 px-5 py-4 sm:text-right">
-            <p className="text-xs font-semibold uppercase tracking-wider text-night-sky-200">Employees</p>
-            <p className="mt-1 text-2xl font-extrabold text-night-sky-500">{employees.length}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-night-sky-200">
+              Employees
+            </p>
+            <p className="mt-1 text-2xl font-extrabold text-night-sky-500">
+              {employees.length}
+            </p>
           </div>
         </header>
 
-        {(error || notice) && <div className="rounded-xl border border-night-sky-200/30 bg-night-sky-100/10 px-4 py-3 text-sm text-night-sky-400" role="status">{error || notice}</div>}
+        {(error || notice) && (
+          <div
+            className="rounded-xl border border-night-sky-200/30 bg-night-sky-100/10 px-4 py-3 text-sm text-night-sky-400"
+            role="status"
+          >
+            {error || notice}
+          </div>
+        )}
 
         <section className="rounded-2xl border border-night-sky-100/20 bg-night-sky-100/10 p-5 md:p-6">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <h2 className="text-base font-bold text-night-sky-500">Employee directory</h2>
-              <p className="mt-1 text-xs text-night-sky-200">Select an employee to edit their responsibility level.</p>
+              <h2 className="text-base font-bold text-night-sky-500">
+                Employee directory
+              </h2>
+              <p className="mt-1 text-xs text-night-sky-200">
+                Select an employee to edit their responsibility level.
+              </p>
             </div>
-            <button type="button" onClick={() => openModal("add")} className="rounded-xl bg-night-sky-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-night-sky-400">
-              <i className="fa-solid fa-plus mr-2" aria-hidden="true" />Add employee
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => {
+                  setReportError("");
+                  setShowActionsModal(true);
+                }}
+                className="rounded-xl border border-night-sky-300 px-5 py-3 text-sm font-bold text-night-sky-400 transition hover:bg-night-sky-100/20"
+              >
+                User Actions
+              </button>
+              <button
+                type="button"
+                onClick={() => openModal("add")}
+                className="rounded-xl bg-night-sky-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-night-sky-400"
+              >
+                <i className="fa-solid fa-plus mr-2" aria-hidden="true" />
+                Add employee
+              </button>
+            </div>
           </div>
-          <EmployeeTable employees={employees} isLoading={isLoading} busyID={busyID} currentUserID={currentUser?.id} onSelect={(employee) => openModal("edit", employee)} onDelete={handleDelete} />
+          <EmployeeTable
+            employees={employees}
+            isLoading={isLoading}
+            busyID={busyID}
+            currentUserID={currentUser?.id}
+            onSelect={(employee) => openModal("edit", employee)}
+            onDelete={handleDelete}
+          />
         </section>
       </div>
-      {modalMode && <EmployeeFormModal key={`${modalMode}-${selectedEmployee?._id || "new"}`} mode={modalMode} employee={selectedEmployee} isSaving={Boolean(busyID)} error={error} onClose={() => setModalMode(null)} onSubmit={handleSave} />}
+      {modalMode && (
+        <EmployeeFormModal
+          key={`${modalMode}-${selectedEmployee?._id || "new"}`}
+          mode={modalMode}
+          employee={selectedEmployee}
+          isSaving={Boolean(busyID)}
+          error={error}
+          onClose={() => setModalMode(null)}
+          onSubmit={handleSave}
+        />
+      )}
+      {showActionsModal && (
+        <UserActionsModal
+          employees={employees}
+          isDownloading={isDownloadingReport}
+          error={reportError}
+          onClose={() => setShowActionsModal(false)}
+          onDownload={handleDownloadReport}
+        />
+      )}
     </main>
   );
 }
