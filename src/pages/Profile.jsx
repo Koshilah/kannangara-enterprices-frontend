@@ -400,7 +400,7 @@ function Profile() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
               <div className="relative">
-                <div className="flex size-18 items-center justify-center rounded-2xl bg-gradient-to-tr from-night-sky-500 via-night-sky-400 to-night-sky-300 text-2xl font-bold text-white shadow-md ring-4 ring-night-sky-100/10">
+                <div className="flex size-18 items-center justify-center rounded-2xl bg-linear-to-tr from-night-sky-500 via-night-sky-400 to-night-sky-300 text-2xl font-bold text-white shadow-md ring-4 ring-night-sky-100/10">
                   {getInitials(profile.fullName)}
                 </div>
                 {isLoadingProfile && (

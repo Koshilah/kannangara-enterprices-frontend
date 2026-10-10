@@ -104,7 +104,7 @@ function App() {
     }
 
     loadCart();
-  });
+  },[]);
 
   const user = (() => {
     try {
