@@ -7,7 +7,8 @@ import {
   isValidEmail,
   isValidPhone,
 } from "../utility/inputValidation";
-import ProfileInputField from "../components/ProfileInputField";
+import InputField from "../components/InputField";
+import PasswordField from "../components/PasswordField";
 import ProfileShortcut from "../components/ProfileShortcut";
 
 function getStoredUser() {
@@ -32,19 +33,14 @@ function Profile() {
     email: initialUser.email || "",
     phone: initialUser.phone || "",
   };
-
   const [profile, setProfile] = useState(initialProfile);
   const [draft, setDraft] = useState(initialProfile);
   const [draftErrors, setDraftErrors] = useState({ phone: "", email: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Notifications
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  // Password reset state
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [passwords, setPasswords] = useState({
     current: "",
@@ -64,18 +60,14 @@ function Profile() {
     next: "",
     confirm: "",
   });
-
-  // Account deletion state
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showDeletePasswordPopup, setShowDeletePasswordPopup] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   useEffect(() => {
     let isMounted = true;
-    setIsLoadingProfile(true);
-
     getProfile()
       .then((data) => {
         if (!isMounted || !data) return;
@@ -86,25 +78,11 @@ function Profile() {
         };
         setProfile(loaded);
         setDraft(loaded);
-
-        const stored = getStoredUser();
-        window.localStorage.setItem(
-          "user",
-          JSON.stringify({
-            ...stored,
-            name: loaded.fullName,
-            email: loaded.email,
-            phone: loaded.phone,
-          }),
-        );
       })
-      .catch((err) => {
-        console.error("Failed to fetch profile on mount:", err);
-      })
+      .catch((err) => console.error("Failed to fetch profile on mount:", err))
       .finally(() => {
         if (isMounted) setIsLoadingProfile(false);
       });
-
     return () => {
       isMounted = false;
     };
@@ -119,26 +97,36 @@ function Profile() {
     const { name, value } = event.target;
     setDraft((prev) => ({ ...prev, [name]: value }));
     clearAlerts();
-
     if (name === "phone") {
       if (value.trim() === "") {
         setDraftErrors((prev) => ({ ...prev, phone: "" }));
       } else if (!/^\d+$/.test(value.trim())) {
-        setDraftErrors((prev) => ({ ...prev, phone: "Only numbers are allowed." }));
+        setDraftErrors((prev) => ({
+          ...prev,
+          phone: "Only numbers are allowed.",
+        }));
       } else if (value.trim().length < 9) {
-        setDraftErrors((prev) => ({ ...prev, phone: "Phone number must be at least 9 digits." }));
+        setDraftErrors((prev) => ({
+          ...prev,
+          phone: "Phone number must be at least 9 digits.",
+        }));
       } else if (value.trim().length > 10) {
-        setDraftErrors((prev) => ({ ...prev, phone: "Phone number must not exceed 10 digits." }));
+        setDraftErrors((prev) => ({
+          ...prev,
+          phone: "Phone number must not exceed 10 digits.",
+        }));
       } else {
         setDraftErrors((prev) => ({ ...prev, phone: "" }));
       }
     }
-
     if (name === "email") {
       if (value.trim() === "") {
         setDraftErrors((prev) => ({ ...prev, email: "" }));
       } else if (!isValidEmail(value)) {
-        setDraftErrors((prev) => ({ ...prev, email: "Please enter a valid email address." }));
+        setDraftErrors((prev) => ({
+          ...prev,
+          email: "Please enter a valid email address.",
+        }));
       } else {
         setDraftErrors((prev) => ({ ...prev, email: "" }));
       }
@@ -148,21 +136,20 @@ function Profile() {
   const saveProfile = async (event) => {
     event.preventDefault();
     clearAlerts();
-
-    if (!draft.fullName.trim()) {
-      setErrorMessage("Full Name is required.");
-      return;
-    }
-    if (!draft.email.trim()) {
-      setErrorMessage("Email address is required.");
-      return;
-    }
-    if (!isValidEmail(draft.email)) {
-      setDraftErrors((prev) => ({ ...prev, email: "Please enter a valid email address." }));
-      return;
-    }
+    if (!draft.fullName.trim())
+      return setErrorMessage("Full Name is required.");
+    if (!draft.email.trim())
+      return setErrorMessage("Email address is required.");
+    if (!isValidEmail(draft.email))
+      return setDraftErrors((prev) => ({
+        ...prev,
+        email: "Please enter a valid email address.",
+      }));
     if (draft.phone.trim() && !isValidPhone(draft.phone)) {
-      setDraftErrors((prev) => ({ ...prev, phone: "Phone number must be 9–10 digits, numbers only." }));
+      setDraftErrors((prev) => ({
+        ...prev,
+        phone: "Phone number must be 9–10 digits, numbers only.",
+      }));
       return;
     }
     if (draftErrors.phone || draftErrors.email) return;
@@ -235,33 +222,12 @@ function Profile() {
 
   const handleNextPasswordChange = (val) => {
     setPasswords((prev) => ({ ...prev, next: val }));
-
-    if (passwordErrors.next) {
-      if (isStrongPassword(val) === "Password is Strong") {
-        setPasswordErrors((prev) => ({ ...prev, next: "" }));
-      }
-    }
-
-    if (passwords.confirm) {
-      const isMatched = isPasswordMatched(val, passwords.confirm);
-      setPasswordErrors((prev) => ({
-        ...prev,
-        confirm: isMatched ? "" : "Password doesn't Match!",
-      }));
-    }
+    setPasswordErrors((prev) => ({ ...prev, next: "", confirm: "" }));
   };
 
   const handleConfirmPasswordChange = (val) => {
     setPasswords((prev) => ({ ...prev, confirm: val }));
-    if (!val) {
-      setPasswordErrors((prev) => ({ ...prev, confirm: "" }));
-      return;
-    }
-    const isMatched = isPasswordMatched(passwords.next, val);
-    setPasswordErrors((prev) => ({
-      ...prev,
-      confirm: isMatched ? "" : "Password doesn't Match!",
-    }));
+    setPasswordErrors((prev) => ({ ...prev, confirm: "" }));
   };
 
   const handlePasswordSubmit = async (event) => {
@@ -364,28 +330,6 @@ function Profile() {
       setIsDeleting(false);
     }
   };
-
-  const nextPasswordCriteria = [
-    {
-      label: "At least 8 characters",
-      met: typeof passwords.next === "string" && passwords.next.length >= 8,
-    },
-    { label: "Uppercase letter (A-Z)", met: /[A-Z]/.test(passwords.next) },
-    { label: "Lowercase letter (a-z)", met: /[a-z]/.test(passwords.next) },
-    { label: "Number (0-9)", met: /\d/.test(passwords.next) },
-    {
-      label: "Special symbol (!@#$...)",
-      met: /[^A-Za-z0-9\s]/.test(passwords.next),
-    },
-  ];
-  const metCriteriaCount = nextPasswordCriteria.filter((c) => c.met).length;
-  const isNextPasswordStrong =
-    passwords.next.length > 0 &&
-    isStrongPassword(passwords.next) === "Password is Strong";
-  const isConfirmPasswordMatched =
-    Boolean(passwords.confirm) &&
-    Boolean(passwords.next) &&
-    isPasswordMatched(passwords.next, passwords.confirm);
 
   return (
     <div className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-night-sky-500 antialiased">
@@ -568,7 +512,7 @@ function Profile() {
             </div>
 
             <form onSubmit={saveProfile} className="space-y-4">
-              <ProfileInputField
+              <InputField
                 id="fullName"
                 name="fullName"
                 label="Full Name"
@@ -588,7 +532,7 @@ function Profile() {
                 }
               />
 
-              <ProfileInputField
+              <InputField
                 id="email"
                 name="email"
                 type="email"
@@ -611,7 +555,7 @@ function Profile() {
                 }
               />
 
-              <ProfileInputField
+              <InputField
                 id="phone"
                 name="phone"
                 type="tel"
@@ -719,7 +663,7 @@ function Profile() {
                     </p>
                   )}
 
-                  <PasswordInputField
+                  <PasswordField
                     id="current-password"
                     label="Current Password"
                     value={passwords.current}
@@ -736,20 +680,13 @@ function Profile() {
                     onChange={handleCurrentPasswordChange}
                   />
 
-                  <PasswordInputField
+                  <PasswordField
                     id="new-password"
                     label="New Password"
                     value={passwords.next}
                     show={showPasswords.next}
                     autoComplete="new-password"
                     error={passwordErrors.next}
-                    status={
-                      passwordErrors.next
-                        ? "error"
-                        : isNextPasswordStrong
-                        ? "success"
-                        : "neutral"
-                    }
                     onToggle={() =>
                       setShowPasswords((prev) => ({
                         ...prev,
@@ -757,123 +694,24 @@ function Profile() {
                       }))
                     }
                     onChange={handleNextPasswordChange}
-                    helperText="At least 8 characters with upper, lower, number & symbol"
-                  >
-                    {passwords.next.length > 0 && (
-                      <div className="mt-2.5 rounded-xl border border-night-sky-100/15 bg-slate-50/80 p-3">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-night-sky-300">
-                            Password Strength:
-                          </span>
-                          <span
-                            className={`flex items-center gap-1 font-bold ${
-                              isNextPasswordStrong
-                                ? "text-emerald-600"
-                                : metCriteriaCount >= 3
-                                ? "text-amber-600"
-                                : "text-rose-600"
-                            }`}
-                          >
-                            {isNextPasswordStrong ? (
-                              <>
-                                <svg
-                                  className="size-3.5"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Password is Strong
-                              </>
-                            ) : (
-                              <>
-                                <svg
-                                  className="size-3.5"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Password is Weak
-                              </>
-                            )}
-                          </span>
-                        </div>
+                    helperText={
+                      passwords.next ? isStrongPassword(passwords.next) : ""
+                    }
+                  />
 
-                        <div className="mt-2 grid grid-cols-5 gap-1.5">
-                          {[1, 2, 3, 4, 5].map((level) => (
-                            <div
-                              key={level}
-                              className={`h-1.5 rounded-full transition-all duration-300 ${
-                                level <= metCriteriaCount
-                                  ? isNextPasswordStrong
-                                    ? "bg-emerald-500"
-                                    : metCriteriaCount >= 3
-                                    ? "bg-amber-400"
-                                    : "bg-rose-500"
-                                  : "bg-slate-200"
-                              }`}
-                            />
-                          ))}
-                        </div>
-
-                        <div className="mt-2.5 grid grid-cols-1 gap-1 text-[11px] sm:grid-cols-2">
-                          {nextPasswordCriteria.map((c, i) => (
-                            <div
-                              key={i}
-                              className={`flex items-center gap-1.5 transition-colors ${
-                                c.met
-                                  ? "font-medium text-emerald-700"
-                                  : "text-night-sky-100"
-                              }`}
-                            >
-                              {c.met ? (
-                                <svg
-                                  className="size-3 shrink-0 text-emerald-600"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              ) : (
-                                <span className="mx-0.5 size-1.5 shrink-0 rounded-full bg-slate-300" />
-                              )}
-                              <span>{c.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </PasswordInputField>
-
-                  <PasswordInputField
+                  <PasswordField
                     id="confirm-password"
                     label="Confirm New Password"
                     value={passwords.confirm}
                     show={showPasswords.confirm}
                     autoComplete="new-password"
                     error={passwordErrors.confirm}
-                    success={
-                      isConfirmPasswordMatched ? "Passwords match" : ""
-                    }
-                    status={
-                      passwordErrors.confirm
-                        ? "error"
-                        : isConfirmPasswordMatched
-                        ? "success"
-                        : "neutral"
+                    helperText={
+                      passwords.confirm
+                        ? isPasswordMatched(passwords.next, passwords.confirm)
+                          ? "Passwords match"
+                          : "Passwords do not match"
+                        : ""
                     }
                     onToggle={() =>
                       setShowPasswords((prev) => ({
@@ -1138,137 +976,5 @@ function Profile() {
   );
 }
 
-function PasswordInputField({
-  id,
-  label,
-  value,
-  show,
-  onToggle,
-  onChange,
-  onKeyUp,
-  helperText,
-  error,
-  success,
-  status = "neutral",
-  autoComplete,
-  children,
-}) {
-  const hasError = Boolean(error);
-  const hasSuccess = Boolean(success);
-
-  let borderClasses =
-    "border-night-sky-100/30 bg-slate-50 focus:border-night-sky-400 focus:bg-white focus:ring-night-sky-200/20";
-  if (status === "error" || hasError) {
-    borderClasses =
-      "border-rose-400 bg-rose-50/15 focus:border-rose-500 focus:bg-white focus:ring-rose-200/30";
-  } else if (status === "success" || hasSuccess) {
-    borderClasses =
-      "border-emerald-400 bg-emerald-50/15 focus:border-emerald-500 focus:bg-white focus:ring-emerald-200/30";
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <label htmlFor={id} className="text-xs font-bold text-night-sky-300">
-          {label}
-        </label>
-        {helperText && !hasError && !hasSuccess && (
-          <span className="text-[10px] text-night-sky-100">{helperText}</span>
-        )}
-      </div>
-
-      <div className="relative mt-1">
-        <input
-          id={id}
-          type={show ? "text" : "password"}
-          value={value}
-          required
-          autoComplete={autoComplete}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyUp={onKeyUp}
-          className={`h-10 w-full rounded-xl border px-3 pr-10 text-sm text-night-sky-500 outline-none transition focus:ring-2 ${borderClasses}`}
-        />
-        <button
-          type="button"
-          onClick={onToggle}
-          className="absolute inset-y-0 right-0 flex items-center pr-3 text-night-sky-200 hover:text-night-sky-400"
-          aria-label={show ? `Hide ${label}` : `Show ${label}`}
-        >
-          {show ? (
-            <svg
-              className="size-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="size-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-          )}
-        </button>
-      </div>
-
-      {hasError && (
-        <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-600">
-          <svg
-            className="size-3.5 shrink-0"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span>{error}</span>
-        </p>
-      )}
-
-      {hasSuccess && !hasError && (
-        <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-          <svg
-            className="size-3.5 shrink-0"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span>{success}</span>
-        </p>
-      )}
-
-      {children}
-    </div>
-  );
-}
 
 export default Profile;

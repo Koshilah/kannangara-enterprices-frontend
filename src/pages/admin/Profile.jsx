@@ -4,6 +4,8 @@ import {
   isStrongPassword,
   isPasswordMatched,
 } from "../../utility/inputValidation";
+import InputField from "../../components/InputField";
+import PasswordField from "../../components/PasswordField";
 
 const emptyProfile = { name: "", email: "" };
 const emptyPassword = {
@@ -92,10 +94,11 @@ function Profile() {
 
   function handleNewPasswordChange(val) {
     setPasswords((prev) => ({ ...prev, newPassword: val }));
-    if (passwordErrors.newPassword) {
-      if (isStrongPassword(val) === "Password is Strong") {
-        setPasswordErrors((prev) => ({ ...prev, newPassword: "" }));
-      }
+    if (
+      passwordErrors.newPassword &&
+      isStrongPassword(val) === "Password is Strong"
+    ) {
+      setPasswordErrors((prev) => ({ ...prev, newPassword: "" }));
     }
     if (passwords.confirmPassword) {
       const isMatched = isPasswordMatched(val, passwords.confirmPassword);
@@ -124,7 +127,6 @@ function Profile() {
   async function handlePasswordSubmit(event) {
     event.preventDefault();
     clearFeedback();
-
     const errors = {
       currentPassword: "",
       newPassword: "",
@@ -140,7 +142,9 @@ function Profile() {
     if (!passwords.newPassword) {
       errors.newPassword = "Please enter a new password.";
       hasError = true;
-    } else if (isStrongPassword(passwords.newPassword) !== "Password is Strong") {
+    } else if (
+      isStrongPassword(passwords.newPassword) !== "Password is Strong"
+    ) {
       errors.newPassword =
         "Use a valid password with at least 8 characters, including uppercase, lowercase, number, and symbol.";
       hasError = true;
@@ -243,8 +247,7 @@ function Profile() {
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-night-sky-500">
             My profile
           </h1>
-          <p className="mt-2 max-w-xl text-sm text-night-sky-200">
-          </p>
+          <p className="mt-2 max-w-xl text-sm text-night-sky-200"></p>
         </header>
 
         {(error || notice) && (
@@ -267,19 +270,21 @@ function Profile() {
               </p>
             ) : (
               <form className="space-y-4" onSubmit={handleProfileSubmit}>
-                <ProfileInput
+                <InputField
                   label="Full name"
                   value={draft.name}
                   disabled={!isEditing}
+                  variant="admin"
                   onChange={(event) =>
                     setDraft({ ...draft, name: event.target.value })
                   }
                 />
-                <ProfileInput
+                <InputField
                   label="Email address"
                   type="email"
                   value={draft.email}
                   disabled={!isEditing}
+                  variant="admin"
                   onChange={(event) =>
                     setDraft({ ...draft, email: event.target.value })
                   }
@@ -325,23 +330,21 @@ function Profile() {
             description="Confirm your current password before choosing a new one."
           >
             <form className="space-y-4" onSubmit={handlePasswordSubmit}>
-              <ProfileInput
+              <PasswordField
                 label="Current password"
                 type="password"
                 value={passwords.currentPassword}
                 error={passwordErrors.currentPassword}
-                onChange={(event) =>
-                  handleCurrentPasswordChange(event.target.value)
-                }
+                onChange={handleCurrentPasswordChange}
+                variant="admin"
               />
-              <ProfileInput
+              <PasswordField
                 label="New password"
                 type="password"
                 value={passwords.newPassword}
                 error={passwordErrors.newPassword}
-                onChange={(event) =>
-                  handleNewPasswordChange(event.target.value)
-                }
+                onChange={handleNewPasswordChange}
+                variant="admin"
               >
                 {passwords.newPassword.length > 0 && (
                   <div className="mt-1 rounded-xl border border-night-sky-100/15 bg-white/70 p-3">
@@ -354,8 +357,8 @@ function Profile() {
                           isNewPasswordStrong
                             ? "text-emerald-600"
                             : metCriteriaCount >= 3
-                            ? "text-amber-600"
-                            : "text-rose-600"
+                              ? "text-amber-600"
+                              : "text-rose-600"
                         }`}
                       >
                         {isNewPasswordStrong ? (
@@ -401,8 +404,8 @@ function Profile() {
                               ? isNewPasswordStrong
                                 ? "bg-emerald-500"
                                 : metCriteriaCount >= 3
-                                ? "bg-amber-400"
-                                : "bg-rose-500"
+                                  ? "bg-amber-400"
+                                  : "bg-rose-500"
                               : "bg-slate-200"
                           }`}
                         />
@@ -440,16 +443,15 @@ function Profile() {
                     </div>
                   </div>
                 )}
-              </ProfileInput>
-              <ProfileInput
+              </PasswordField>
+              <PasswordField
                 label="Confirm new password"
                 type="password"
                 value={passwords.confirmPassword}
                 error={passwordErrors.confirmPassword}
                 success={isConfirmPasswordMatched ? "Passwords match" : ""}
-                onChange={(event) =>
-                  handleConfirmPasswordChange(event.target.value)
-                }
+                onChange={handleConfirmPasswordChange}
+                variant="admin"
               />
               <button
                 type="submit"
@@ -476,77 +478,6 @@ function ProfileCard({ title, description, children }) {
   );
 }
 
-function ProfileInput({
-  label,
-  type = "text",
-  value,
-  disabled = false,
-  onChange,
-  minLength,
-  error,
-  success,
-  children,
-}) {
-  const hasError = Boolean(error);
-  const hasSuccess = Boolean(success);
 
-  let borderClasses =
-    "border-night-sky-100/30 bg-night-sky-100/10 focus:border-night-sky-300 focus:ring-night-sky-200/20";
-  if (hasError) {
-    borderClasses =
-      "border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-200/30";
-  } else if (hasSuccess) {
-    borderClasses =
-      "border-emerald-400 bg-emerald-50/20 focus:border-emerald-500 focus:ring-emerald-200/30";
-  }
-
-  return (
-    <div className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
-      <label>{label}</label>
-      <input
-        type={type}
-        value={value}
-        disabled={disabled}
-        required
-        onChange={onChange}
-        minLength={minLength}
-        className={`rounded-xl border px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${borderClasses}`}
-      />
-      {hasError && (
-        <p className="flex items-center gap-1.5 text-xs font-medium text-rose-600">
-          <svg
-            className="size-3.5 shrink-0"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span>{error}</span>
-        </p>
-      )}
-      {hasSuccess && !hasError && (
-        <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-          <svg
-            className="size-3.5 shrink-0"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span>{success}</span>
-        </p>
-      )}
-      {children}
-    </div>
-  );
-}
 
 export default Profile;
