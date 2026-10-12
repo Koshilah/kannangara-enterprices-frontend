@@ -84,8 +84,8 @@ function Navbar({ isLoggedIn, user, cart }) {
                 <hr className="my-4 border-neutral-400" />
                 <button
                   type="button"
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
                     navigate("/");
                     window.location.href = "/";
                   }}
