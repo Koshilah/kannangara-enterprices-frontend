@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { cancelOrder, getOrders } from "../../api/order";
+import OrderReportModal from "../../components/OrderReportModal";
 import OrderSummary from "../../components/admin/orders/OrderSummary";
 import OrderTable from "../../components/admin/orders/OrderTable";
+import { downloadAdminOrderReport } from "../../utility/adminOrderReport";
 
 const ORDER_STATUSES = [
   { value: "pending", label: "Pending" },
@@ -31,6 +33,8 @@ function Order() {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
 
   const filteredOrders = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -119,6 +123,23 @@ function Order() {
     } finally {
       setBusyID(null);
     }
+
+  }
+
+  async function handleDownloadReport({ month, filteredOrders }) {
+    setIsDownloadingReport(true);
+    setError("");
+
+    try {
+      await downloadAdminOrderReport({ orders: filteredOrders, month });
+      setShowReportModal(false);
+      setNotice("Order report downloaded successfully.");
+    } catch (downloadError) {
+      console.error("Order report failed", downloadError);
+      setError("Unable to generate the order report. Please try again.");
+    } finally {
+      setIsDownloadingReport(false);
+    }
   }
 
   return (
@@ -135,7 +156,18 @@ function Order() {
             <p className="mt-2 max-w-xl text-sm text-night-sky-200">
             </p>
           </div>
-          <OrderSummary count={filteredOrders.length} total={orders.length} />
+          <div className="flex flex-wrap items-center gap-3">
+            <OrderSummary count={filteredOrders.length} total={orders.length} />
+            <button
+              type="button"
+              onClick={() => setShowReportModal(true)}
+              disabled={isLoading || orders.length === 0 || isDownloadingReport}
+              className="flex items-center gap-2 rounded-xl bg-night-sky-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-night-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <i className="fa-solid fa-file-arrow-down" aria-hidden="true" />
+              {isDownloadingReport ? "Preparing report..." : "Download report"}
+            </button>
+          </div>
         </header>
 
         {(error || notice) && (
@@ -251,6 +283,15 @@ function Order() {
           />
         </section>
       </div>
+      {showReportModal && (
+        <OrderReportModal
+          onClose={() => setShowReportModal(false)}
+          onDownload={handleDownloadReport}
+          totalCount={orders.length}
+          orders={orders}
+          isDownloading={isDownloadingReport}
+        />
+      )}
     </main>
   );
 }
