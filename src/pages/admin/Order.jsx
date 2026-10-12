@@ -1,7 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cancelOrder, getOrders } from "../../api/order";
 import OrderSummary from "../../components/admin/orders/OrderSummary";
 import OrderTable from "../../components/admin/orders/OrderTable";
+
+const ORDER_STATUSES = [
+  { value: "pending", label: "Pending" },
+  { value: "processing", label: "Processing" },
+  { value: "shipped", label: "Shipped" },
+  { value: "delivered", label: "Delivered" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "successful", label: "Successful" },
+];
+
+const PAYMENT_STATUSES = [
+  { value: "pending", label: "Pending" },
+  { value: "paid", label: "Paid" },
+  { value: "failed", label: "Failed" },
+  { value: "refunded", label: "Refunded" },
+  { value: "successful", label: "Successful" },
+];
 
 function Order() {
   const [orders, setOrders] = useState([]);
@@ -9,6 +26,51 @@ function Order() {
   const [busyID, setBusyID] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const filteredOrders = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return orders.filter((order) => {
+      const matchesSearch =
+        !query ||
+        [
+          order._id,
+          order.userID?.name,
+          order.paymentMethod,
+          order.paymentID,
+        ].some((value) => String(value || "").toLowerCase().includes(query));
+      const matchesStatus =
+        statusFilter === "all" || order.orderStatus === statusFilter;
+      const matchesPaymentStatus =
+        paymentStatusFilter === "all" ||
+        order.paymentStatus === paymentStatusFilter;
+      const orderedDate = order.dateOrdered
+        ? new Date(order.dateOrdered).toISOString().slice(0, 10)
+        : "";
+      const matchesFromDate = !fromDate || orderedDate >= fromDate;
+      const matchesToDate = !toDate || orderedDate <= toDate;
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPaymentStatus &&
+        matchesFromDate &&
+        matchesToDate
+      );
+    });
+  }, [orders, searchTerm, statusFilter, paymentStatusFilter, fromDate, toDate]);
+
+  const hasActiveFilters =
+    Boolean(searchTerm.trim()) ||
+    statusFilter !== "all" ||
+    paymentStatusFilter !== "all" ||
+    Boolean(fromDate) ||
+    Boolean(toDate);
 
   useEffect(() => {
     let isMounted = true;
@@ -73,7 +135,7 @@ function Order() {
             <p className="mt-2 max-w-xl text-sm text-night-sky-200">
             </p>
           </div>
-          <OrderSummary count={orders.length} total={orders.length} />
+          <OrderSummary count={filteredOrders.length} total={orders.length} />
         </header>
 
         {(error || notice) && (
@@ -95,11 +157,97 @@ function Order() {
               delivery details.
             </p>
           </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
+              Search orders
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Order ID, customer, or payment"
+                className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition placeholder:text-night-sky-200 focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-200/20"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
+              Order status
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-200/20"
+              >
+                <option value="all">All statuses</option>
+                {ORDER_STATUSES.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
+              Payment status
+              <select
+                value={paymentStatusFilter}
+                onChange={(event) =>
+                  setPaymentStatusFilter(event.target.value)
+                }
+                className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-200/20"
+              >
+                <option value="all">All payment statuses</option>
+                {PAYMENT_STATUSES.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
+              Ordered from
+              <input
+                type="date"
+                value={fromDate}
+                max={toDate || undefined}
+                onChange={(event) => setFromDate(event.target.value)}
+                className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-200/20"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-xs font-bold text-night-sky-300">
+              Ordered to
+              <input
+                type="date"
+                value={toDate}
+                min={fromDate || undefined}
+                onChange={(event) => setToDate(event.target.value)}
+                className="rounded-xl border border-night-sky-100/30 bg-night-sky-100/10 px-3 py-2.5 text-sm font-medium text-night-sky-500 outline-none transition focus:border-night-sky-300 focus:ring-2 focus:ring-night-sky-200/20"
+              />
+            </label>
+            {hasActiveFilters && (
+              <div className="flex items-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setStatusFilter("all");
+                    setPaymentStatusFilter("all");
+                    setFromDate("");
+                    setToDate("");
+                  }}
+                  className="text-xs font-semibold text-night-sky-300 underline underline-offset-2 transition hover:text-night-sky-500"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </div>
           <OrderTable
-            orders={orders}
+            orders={filteredOrders}
             isLoading={isLoading}
             busyID={busyID}
             onCancel={handleCancel}
+            emptyMessage={
+              hasActiveFilters
+                ? "No orders match the selected filters."
+                : "No orders found."
+            }
           />
         </section>
       </div>
