@@ -73,6 +73,10 @@ function Order() {
     Boolean(fromDate) ||
     Boolean(toDate);
 
+  const pendingOrderCount = orders.filter(
+    (order) => order.orderStatus === "pending",
+  ).length;
+
   useEffect(() => {
     let isMounted = true;
 
@@ -154,7 +158,11 @@ function Order() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <OrderSummary count={filteredOrders.length} total={orders.length} />
+            <OrderSummary
+              count={filteredOrders.length}
+              total={orders.length}
+              pending={pendingOrderCount}
+            />
             <button
               type="button"
               onClick={() => setShowReportModal(true)}
