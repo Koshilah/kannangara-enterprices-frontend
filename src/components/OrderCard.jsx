@@ -19,13 +19,10 @@ function formatDate(date) {
 
 const STATUS_LABELS = {
   pending: "Pending",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
+  completed: "Completed",
   cancelled: "Cancelled",
   paid: "Paid",
   unpaid: "Unpaid",
-  successful: "Successful",
   unknown: "Unknown",
 };
 
@@ -35,9 +32,8 @@ function StatusBadge({ value }) {
 
   const colourMap = {
     cancelled: "border-red-200 bg-red-50 text-red-700",
-    delivered: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    completed: "border-emerald-200 bg-emerald-50 text-emerald-700",
     paid: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    successful: "border-emerald-200 bg-emerald-50 text-emerald-700",
   };
 
   const colour =
@@ -146,7 +142,7 @@ function OrderCard({
   const shortID = String(orderID).slice(-10).toUpperCase();
   const canCancel =
     !isCancelling &&
-    ["pending", "processing", "successful"].includes(
+    ["pending"].includes(
       String(order.orderStatus || "").toLowerCase(),
     );
 

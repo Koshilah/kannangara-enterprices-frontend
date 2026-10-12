@@ -1,18 +1,15 @@
 const labels = {
   pending: "Pending",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
+  completed: "Completed",
   cancelled: "Cancelled",
   paid: "Paid",
   unpaid: "Unpaid",
-  successful: "Successful",
 };
 
 function OrderStatusBadge({ value }) {
   const normalizedValue = String(value || "unknown").toLowerCase();
   const isCancelled = normalizedValue === "cancelled";
-  const isPositive = ["paid", "delivered", "successful"].includes(
+  const isPositive = ["paid", "completed"].includes(
     normalizedValue,
   );
   const className = isCancelled

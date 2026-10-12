@@ -7,11 +7,8 @@ import { downloadAdminOrderReport } from "../../utility/adminOrderReport";
 
 const ORDER_STATUSES = [
   { value: "pending", label: "Pending" },
-  { value: "processing", label: "Processing" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
+  { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
-  { value: "successful", label: "Successful" },
 ];
 
 const PAYMENT_STATUSES = [
@@ -75,6 +72,10 @@ function Order() {
     paymentStatusFilter !== "all" ||
     Boolean(fromDate) ||
     Boolean(toDate);
+
+  const pendingOrderCount = orders.filter(
+    (order) => order.orderStatus === "pending",
+  ).length;
 
   useEffect(() => {
     let isMounted = true;
@@ -157,7 +158,11 @@ function Order() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <OrderSummary count={filteredOrders.length} total={orders.length} />
+            <OrderSummary
+              count={filteredOrders.length}
+              total={orders.length}
+              pending={pendingOrderCount}
+            />
             <button
               type="button"
               onClick={() => setShowReportModal(true)}

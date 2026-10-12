@@ -153,14 +153,15 @@ export function saveToLocalStorage(token, user) {
   window.localStorage.setItem("user", JSON.stringify(user));
 }
 
-export function logout() {
+export async function logout() {
   try {
-    apiBase.post("/auth/logout").catch(() => {});
-  } catch {
-    // ignore logout API errors and clear the client session anyway
+    await apiBase.post("/auth/logout");
+  } catch (error) {
+    console.error("Unable to revoke the refresh session", error);
+  } finally {
+    // Always clear the local session, even when the server is unavailable.
+    clearAuthState();
   }
-
-  clearAuthState();
 }
 
 export async function verifyEmail(email) {
@@ -175,4 +176,3 @@ export async function resetPassword({ email, password }) {
   });
   return response.data;
 }
-

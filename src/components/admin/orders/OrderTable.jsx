@@ -31,6 +31,7 @@ function OrderTable({
             <th className="px-3 pb-3 font-bold">Customer</th>
             <th className="px-3 pb-3 font-bold">Ordered date</th>
             <th className="px-3 pb-3 font-bold">Total amount</th>
+            <th className="px-3 pb-3 font-bold">Order status</th>
             <th className="px-3 pb-3 font-bold">Payment</th>
             <th className="px-3 pb-3 font-bold">Payment state</th>
             <th className="px-3 pb-3 font-bold">Action</th>
@@ -38,12 +39,12 @@ function OrderTable({
         </thead>
         <tbody>
           {isLoading ? (
-            <tr><td colSpan="7" className="px-3 py-14 text-center text-night-sky-200">Loading orders...</td></tr>
+            <tr><td colSpan="8" className="px-3 py-14 text-center text-night-sky-200">Loading orders...</td></tr>
           ) : orders.length === 0 ? (
-            <tr><td colSpan="7" className="px-3 py-14 text-center text-night-sky-200">{emptyMessage}</td></tr>
+            <tr><td colSpan="8" className="px-3 py-14 text-center text-night-sky-200">{emptyMessage}</td></tr>
           ) : orders.map((order) => {
             const isBusy = busyID === order._id;
-            const canCancel = !["cancelled", "delivered"].includes(order.orderStatus);
+            const canCancel = !["cancelled", "completed"].includes(order.orderStatus);
             return (
               <tr
                 key={order._id}
@@ -54,6 +55,7 @@ function OrderTable({
                 <td className="px-3 py-4 font-bold text-night-sky-400">{order.userID?.name || "Unknown customer"}</td>
                 <td className="whitespace-nowrap px-3 py-4 text-night-sky-300">{formatDate(order.dateOrdered)}</td>
                 <td className="whitespace-nowrap px-3 py-4 font-bold text-night-sky-400">{formatCurrency(order.orderTotal)}</td>
+                <td className="px-3 py-4"><OrderStatusBadge value={order.orderStatus} /></td>
                 <td className="px-3 py-4 capitalize text-night-sky-300">{order.paymentMethod || "-"}</td>
                 <td className="px-3 py-4"><OrderStatusBadge value={order.paymentStatus} /></td>
                 <td className="px-3 py-4">
