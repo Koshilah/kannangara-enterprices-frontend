@@ -13,7 +13,13 @@ function formatDate(date) {
   return date ? new Date(date).toLocaleDateString() : "-";
 }
 
-function OrderTable({ orders, isLoading, busyID, onCancel }) {
+function OrderTable({
+  orders,
+  isLoading,
+  busyID,
+  onCancel,
+  emptyMessage = "No orders found.",
+}) {
   const navigate = useNavigate();
 
   return (
@@ -34,7 +40,7 @@ function OrderTable({ orders, isLoading, busyID, onCancel }) {
           {isLoading ? (
             <tr><td colSpan="7" className="px-3 py-14 text-center text-night-sky-200">Loading orders...</td></tr>
           ) : orders.length === 0 ? (
-            <tr><td colSpan="7" className="px-3 py-14 text-center text-night-sky-200">No orders found.</td></tr>
+            <tr><td colSpan="7" className="px-3 py-14 text-center text-night-sky-200">{emptyMessage}</td></tr>
           ) : orders.map((order) => {
             const isBusy = busyID === order._id;
             const canCancel = !["cancelled", "delivered"].includes(order.orderStatus);
