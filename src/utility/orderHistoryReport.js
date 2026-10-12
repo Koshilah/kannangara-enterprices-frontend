@@ -74,7 +74,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
     throw new Error("No orders available to generate the report.");
   }
 
-  // Sort orders newest first
+  
   const sortedOrders = [...orders].sort(
     (a, b) => new Date(b.dateOrdered || b.createdAt) - new Date(a.dateOrdered || a.createdAt)
   );
@@ -82,7 +82,6 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await loadLogoData();
 
-  // Metrics calculation
   let totalExpenditure = 0;
   let totalSavings = 0;
   let deliveredCount = 0;
@@ -106,7 +105,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
   const customerName = user?.name || user?.fullName || "Valued Customer";
   const customerEmail = user?.email || "";
 
-  // ── Header ──
+  
   const startX = 15;
   const pageWidth = 210;
   const contentWidth = 180;
@@ -129,7 +128,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
   doc.text(COMPANY_ADDRESS, headerTextX, 23.5);
   doc.text(COMPANY_CONTACT, headerTextX, 28);
 
-  // Right side header info
+  
   doc.setFontSize(11);
   doc.setFont(undefined, "bold");
   doc.setTextColor(18, 46, 74);
@@ -146,12 +145,12 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
     { align: "right" }
   );
 
-  // Header separator line
+  
   doc.setDrawColor(210, 215, 220);
   doc.setLineWidth(0.4);
   doc.line(startX, 36, rightX, 36);
 
-  // ── Summary Cards ──
+  
   const cardY = 41;
   const cardHeight = 18;
   const cardWidth = 42;
@@ -208,13 +207,13 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
       currentY = 18;
     }
 
-    // Order Header Banner
+    
     doc.setFillColor(244, 247, 250);
     doc.setDrawColor(218, 225, 233);
     doc.setLineWidth(0.2);
     doc.roundedRect(startX, currentY, contentWidth, 12, 1.5, 1.5, "FD");
 
-    // Order ID & Date
+    
     doc.setFontSize(9);
     doc.setFont(undefined, "bold");
     doc.setTextColor(18, 46, 74);
@@ -235,7 +234,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
     );
     doc.text(`Payment: ${paymentMethod} (${paymentStatus})`, startX + 45, currentY + 9.5);
 
-    // Order Status Pill on right
+    
     doc.setFontSize(8);
     doc.setFont(undefined, "bold");
     if (orderStatus === "DELIVERED" || orderStatus === "SUCCESSFUL") {
@@ -251,7 +250,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
     doc.setTextColor(18, 46, 74);
     doc.text(`Total: ${formatCurrency(order.orderTotal)}`, rightX - 3, currentY + 9.5, { align: "right" });
 
-    // Table of items for this order
+    
     autoTable(doc, {
       startY: currentY + 13.5,
       margin: { left: startX, right: pageWidth - rightX },
@@ -286,7 +285,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
       },
     });
 
-    // Subtotal / delivery / total line below table
+    
     const tableEndY = doc.lastAutoTable.finalY + 3.5;
 
     doc.setFontSize(7.5);
@@ -308,7 +307,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
     currentY = tableEndY + 7;
   });
 
-  // ── Global Footers for all pages ──
+  
   const totalPages = doc.internal.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
