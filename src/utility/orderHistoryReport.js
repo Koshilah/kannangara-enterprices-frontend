@@ -84,21 +84,15 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
 
   let totalExpenditure = 0;
   let totalSavings = 0;
-  let deliveredCount = 0;
-  let processingCount = 0;
-  let cancelledCount = 0;
+  let completedCount = 0;
 
   sortedOrders.forEach((order) => {
     totalExpenditure += numberValue(order.orderTotal);
     totalSavings += numberValue(order.totalSavings);
 
     const st = String(order.orderStatus || "").toLowerCase();
-    if (st === "delivered" || st === "successful") {
-      deliveredCount++;
-    } else if (st === "cancelled") {
-      cancelledCount++;
-    } else {
-      processingCount++;
+    if (st === "completed") {
+      completedCount++;
     }
   });
 
@@ -159,7 +153,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
   drawStatCard(doc, startX, cardY, cardWidth, cardHeight, "Total Orders", `${sortedOrders.length} Orders`, [18, 46, 74]);
   drawStatCard(doc, startX + (cardWidth + cardGap), cardY, cardWidth, cardHeight, "Total Spent", formatCurrency(totalExpenditure), [16, 140, 95]);
   drawStatCard(doc, startX + (cardWidth + cardGap) * 2, cardY, cardWidth, cardHeight, "Total Savings", formatCurrency(totalSavings), [217, 119, 6]);
-  drawStatCard(doc, startX + (cardWidth + cardGap) * 3, cardY, cardWidth, cardHeight, "Delivered", `${deliveredCount} Orders`, [79, 70, 229]);
+  drawStatCard(doc, startX + (cardWidth + cardGap) * 3, cardY, cardWidth, cardHeight, "Completed", `${completedCount} Orders`, [79, 70, 229]);
 
   // ── Orders Section ──
   let currentY = 66;
@@ -237,7 +231,7 @@ export async function downloadOrderHistoryReport({ orders = [], user = null }) {
     
     doc.setFontSize(8);
     doc.setFont(undefined, "bold");
-    if (orderStatus === "DELIVERED" || orderStatus === "SUCCESSFUL") {
+    if (orderStatus === "COMPLETED") {
       doc.setTextColor(16, 140, 95);
     } else if (orderStatus === "CANCELLED") {
       doc.setTextColor(220, 38, 38);

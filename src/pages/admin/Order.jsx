@@ -7,11 +7,8 @@ import { downloadAdminOrderReport } from "../../utility/adminOrderReport";
 
 const ORDER_STATUSES = [
   { value: "pending", label: "Pending" },
-  { value: "processing", label: "Processing" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
+  { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
-  { value: "successful", label: "Successful" },
 ];
 
 const PAYMENT_STATUSES = [

@@ -168,9 +168,7 @@ function MyOrders() {
   const FILTER_TABS = [
     { key: "all", label: "All Orders" },
     { key: "pending", label: "Pending" },
-    { key: "processing", label: "Processing" },
-    { key: "shipped", label: "Shipped" },
-    { key: "delivered", label: "Delivered" },
+    { key: "completed", label: "Completed" },
     { key: "cancelled", label: "Cancelled" },
   ];
 
