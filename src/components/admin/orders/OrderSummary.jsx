@@ -6,8 +6,13 @@ function OrderSummary({ count, total }) {
       </p>
       <p className="mt-1 text-2xl font-extrabold text-night-sky-500">
         {count}
+        {count !== total && (
+          <span className="ml-1 text-base font-semibold text-night-sky-200">
+            / {total}
+          </span>
+        )}
         <span className="ml-2 text-sm font-semibold text-night-sky-200">
-          {total === 1 ? "record" : "records"}
+          {count === 1 ? "record" : "records"}
         </span>
       </p>
     </div>
