@@ -20,6 +20,10 @@ function dateInputValue(date) {
   return new Date(date).toISOString().slice(0, 10);
 }
 
+function todayInputValue() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function statusLabel(status) {
   return statuses.find((item) => item.value === status)?.label || status;
 }
@@ -328,6 +332,7 @@ function Delivery() {
                         <td className="whitespace-nowrap px-3 py-4 text-night-sky-300">
                           <input
                             type="date"
+                            min={todayInputValue()}
                             value={dateInputValue(delivery.dueDate)}
                             onChange={(event) =>
                               handleDueDateChange(
