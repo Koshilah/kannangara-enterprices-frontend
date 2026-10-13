@@ -238,7 +238,7 @@ export async function downloadDeliveryReport({
 
   currentY += 5;
 
-  // ── Main table ──
+  
   const tableBody = sorted.map((delivery, index) => {
     const orderID = delivery.orderID?._id || delivery.orderID || "—";
     const shortID = String(orderID).slice(-10).toUpperCase();

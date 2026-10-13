@@ -162,7 +162,7 @@ describe("Supplier page", function () {
   it("renders the supplier table headings", async function () {
     assert.strictEqual(
       (await driver.findElements(By.css("thead th"))).length,
-      5,
+      6,
     );
   });
 

@@ -117,12 +117,12 @@ export async function downloadSupplierReport(suppliers = []) {
     align: "right",
   });
 
-  // Separator
+  
   doc.setDrawColor(210, 215, 220);
   doc.setLineWidth(0.4);
   doc.line(startX, 36, rightX, 36);
 
-  // ── Summary Cards ──
+  
   const cardY = 41;
   const cardH = 18;
   const cardW = 42;
@@ -141,11 +141,11 @@ export async function downloadSupplierReport(suppliers = []) {
     "Total Products", `${totalProducts} Products`, [217, 119, 6]
   );
   drawStatCard(
-    doc, startX + (cardW + gap) * 3, cardY, cardH, cardH,
+    doc, startX + (cardW + gap) * 3, cardY, cardW, cardH,
     "Report Date", new Intl.DateTimeFormat("en-LK", { dateStyle: "medium" }).format(new Date()), [79, 70, 229]
   );
 
-  // ── Section heading ──
+
   let currentY = 66;
 
   doc.setFontSize(11);
@@ -167,20 +167,21 @@ export async function downloadSupplierReport(suppliers = []) {
   const tableBody = sorted.map((supplier, index) => {
     const company = supplier.companyName || "—";
     const rep = supplier.representativeName || "—";
-    const phone = supplier.phone || "—";
+    const phone = supplier.phoneNumber || "—";
     const email = supplier.email || "—";
+    const address = supplier.address || "—";
     const products = (supplier.products || [])
       .map((p) => p.title || p.name || "")
       .filter(Boolean)
       .join(", ") || "—";
 
-    return [index + 1, company, rep, phone, email, products];
+    return [index + 1, company, rep, phone, email, address, products];
   });
 
   autoTable(doc, {
     startY: currentY,
     margin: { left: startX, right: pageWidth - rightX },
-    head: [["#", "Company Name", "Representative", "Phone", "Email", "Products Supplied"]],
+    head: [["#", "Company Name", "Representative", "Phone", "Email", "Address", "Products Supplied"]],
     body: tableBody,
     theme: "plain",
     styles: {
@@ -199,11 +200,12 @@ export async function downloadSupplierReport(suppliers = []) {
     },
     columnStyles: {
       0: { cellWidth: 8, halign: "center" },
-      1: { cellWidth: 35, fontStyle: "bold" },
-      2: { cellWidth: 30 },
-      3: { cellWidth: 24 },
-      4: { cellWidth: 38 },
-      5: { cellWidth: "auto" },
+      1: { cellWidth: 24, fontStyle: "bold" },
+      2: { cellWidth: 18 },
+      3: { cellWidth: 18 },
+      4: { cellWidth: 22 },
+      5: { cellWidth: 30 },
+      6: { cellWidth: "auto" },
     },
     // Alternating row background for readability
     didParseCell(data) {
